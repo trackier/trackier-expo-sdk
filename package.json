@@ -1,6 +1,6 @@
 {
   "name": "trackier-expo-sdk",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "this is trackier expo and react-nattive package",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
