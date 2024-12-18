@@ -1,11 +1,10 @@
 package com.trackierexposdk
 
 import android.net.Uri
-import android.util.Log
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.trackier.sdk.DeepLink
@@ -194,8 +193,11 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setUserAdditionalDetails(userAdditionalDetailsMap: ReadableMap) {
-    // Add implementation if needed
+  fun setUserAdditionalDetails(readableMap: ReadableMap) {
+    var clevertapID = readableMap.getString("clevertap_uid")
+    val hashMap1 = HashMap<String, Any>()
+    hashMap1["clevertap_uid"] = clevertapID!!
+    com.trackier.sdk.TrackierSDK.setUserAdditionalDetails(hashMap1)
   }
 
   @ReactMethod

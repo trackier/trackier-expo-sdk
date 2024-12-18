@@ -142,8 +142,8 @@ let TrackierSDK: TrackierSDKProps = {
 	  module_trackier.setLocalRefTrack(value, delimiter);
   },
 
-  setUserAdditionalDetails: function (key: string, value: string) {
-	  module_trackier.setUserAdditionalDetails(key, value);
+  setUserAdditionalDetails: function (value: string) {
+	  module_trackier.setUserAdditionalDetails(value);
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
