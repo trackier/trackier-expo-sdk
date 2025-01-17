@@ -82,6 +82,7 @@ interface TrackierSDKProps {
   setLocalRefTrack(value: string, delimiter: string): void;
   setUserAdditionalDetails(key: string, value: string): void;
   waitForATTUserAuthorization(timeoutInterval: number): void;
+  updateAppleAdsToken(token: string):void;
   fireInstall(): void;
   parseDeepLink(value: string): void;
   setIMEI(imei1: string, imei2: string): void;
