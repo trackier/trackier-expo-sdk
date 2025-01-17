@@ -115,6 +115,10 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 	@objc func waitForATTUserAuthorization(_ timeoutInterval: Int) {
 		TrackierSDK.waitForATTUserAuthorization(timeoutInterval: timeoutInterval)
 	}
+
+	@objc func updateAppleAdsToken(_ token: String) {
+		TrackierSDK.updateAppleAdsToken(token: token)
+	}
 	
 	@objc func getAd(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
 		resolve(TrackierSDK.getAd())
