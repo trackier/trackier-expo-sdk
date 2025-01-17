@@ -150,7 +150,7 @@ let TrackierSDK: TrackierSDKProps = {
 	  module_trackier.waitForATTUserAuthorization(timeoutInterval);
   },
 
-  updateAppleAdsToken: function (token: srting) {
+  updateAppleAdsToken: function (token: string) {
     module_trackier.updateAppleAdsToken(token);
   },
 
