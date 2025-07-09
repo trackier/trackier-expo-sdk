@@ -1,105 +1,419 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
 import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
 
 export default function App() {
-  const [result, setResult] = useState<number | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [dynamicLinkResult, setDynamicLinkResult] = useState<string>('');
+  const [resolveResult, setResolveResult] = useState<string>('');
+  const [trackierId, setTrackierId] = useState<string>('');
+  const [deepLinkUrl, setDeepLinkUrl] = useState<string>(
+    'https://trackier58.u9ilnk.me/d/K5H7J2MkgU'
+  );
+  const [dynamicLinkConfig, setDynamicLinkConfig] = useState({
+    templateId: 'your_template_id',
+    link: 'https://your-domain.com',
+    domainUriPrefix: 'https://your-domain.com',
+    deepLinkValue: 'https://your-app.com/deep-link',
+  });
 
   useEffect(() => {
-    //TrackierSDK.multiply(3, 7).then(setResult);
-
-
-const trackierConfig = new TrackierConfig("ee9f21fb-5848-4ed9-8d9c-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-
-trackierConfig.setAppSecret("640710587f41ea36ac0cb370", "9e043b7e-7f44-403c-ae11-8cf6bfe8daa0");
-
-// Uncomment if needed
-// trackierConfig.setManualMode(true);
-// TrackierSDK.setLocalRefTrack(true, "_");
-
-// TrackierSDK.setMacAddress("672736278");
-// TrackierSDK.setIMEI("61621267121", "892837283283823982");
-
-trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
-    console.log("Deferred Deeplink Callback received");
-    console.log("URL: " + uri);
-});
-
-TrackierSDK.initialize(trackierConfig);
-
+    initializeTrackierSDK();
+    getTrackierId();
   }, []);
 
+  const initializeTrackierSDK = () => {
+    try {
+      const trackierConfig = new TrackierConfig(
+        "ee9f21fb-5848-4ed9-8d9c-e4093e6d220c", 
+        TrackierConfig.EnvironmentDevelopment
+      );
 
-  function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
-    trackierEvent.param1 = "XXXXXX";
-    trackierEvent.param2 = "kkkkkk";
-    trackierEvent.couponCode = "testReact";
-    trackierEvent.discount = 2.0;
-    TrackierSDK.setUserName('abc');
-    TrackierSDK.setUserPhone("813434721");
-    TrackierSDK.setUserId("67863872382");
-   // TrackierSDK.getTrackierId().then(val => console.log('===trackierid: ', val)).catch(e => console.log('==error: ', e))
-    //trackierEvent.setEventValue("param","8130300721");
-   // trackierEvent.setEventValue("param2",2.0);
-    const customData = new Map();
-    customData.set("name", "sanu");
-    customData.set("phone", "8130300784");
-    TrackierSDK.parseDeepLink("https://trackier58.u9ilnk.me/d/K5H7J2MkgU")
-    //trackierEvent.ev = customData;
-    var jsonData = { "url": "+91-8130300721" ,  "name": "Embassies" };
-    trackierEvent.ev = jsonData;
-    //trackierEvent.setEventValue("param",jsonData);
-    //TrackierSDK.fireInstall();
-    //TrackierSDK.parseDeepLink("https://www.trackier.com/d?ad=sanu&adset=sanu2")
-    TrackierSDK.trackEvent(trackierEvent);
-  }
+      // Set app secret
+      trackierConfig.setAppSecret("640710587f41ea36ac0cb370", "9e043b7e-7f44-403c-ae11-8cf6bfe8daa0");
 
-  function _onPress_trackRevenueEvent(){
-    var trackierEvent1 = new TrackierEvent(TrackierEvent.PURCHASE);
-    trackierEvent1.param1 = "XXXXXX";
-    trackierEvent1.param2 = "kkkkkkk";
-    trackierEvent1.couponCode = "testReact";
-    //trackierEvent1.discount = 2.0;
-    TrackierEvent.set
-    trackierEvent1.revenue = 2.5;
-    trackierEvent1.currency = "USD";
-    TrackierSDK.trackEvent(trackierEvent1);
-    TrackierSDK.setEnabled(true);
-    TrackierSDK.setUserEmail("anuj@trackier.com");
-    TrackierSDK.setUserName("Sanu");
-    TrackierSDK.setUserPhone("8130300721");
-    TrackierSDK.setUserId("abcd");
+      // Set region (NEW FEATURE)
+      trackierConfig.setRegion(TrackierConfig.IN); // or TrackierConfig.GLOBAL
 
-    TrackierSDK.trackAsOrganic(false);
-    TrackierSDK.setLocalRefTrack(true,"test");
-  }
+      // Set attribution parameters (NEW FEATURE)
+      trackierConfig.setAttributionParams({
+        ad: "test_ad",
+        partnerId: "test_partner",
+        channel: "test_channel",
+        adId: "test_ad_id",
+        siteId: "test_site_id"
+      });
+
+      // Set deferred deep link callback
+      trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+        Alert.alert("Deep Link Received", `URL: ${uri}`);
+        console.log("Deferred Deeplink Callback received:", uri);
+      });
+
+      TrackierSDK.initialize(trackierConfig);
+      console.log("Trackier SDK initialized successfully");
+    } catch (error) {
+      console.error("Error initializing Trackier SDK:", error);
+      Alert.alert("Error", "Failed to initialize Trackier SDK");
+    }
+  };
+
+  const getTrackierId = async () => {
+    try {
+      const id = await TrackierSDK.getTrackierId();
+      setTrackierId(id);
+    } catch (error) {
+      console.error("Error getting Trackier ID:", error);
+    }
+  };
+
+  const trackSimpleEvent = () => {
+    try {
+      const trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
+      trackierEvent.param1 = "Product123";
+      trackierEvent.param2 = "Category456";
+      trackierEvent.couponCode = "SAVE20";
+      trackierEvent.discount = 2.0;
+      
+      // Set user information
+      TrackierSDK.setUserName('John Doe');
+      TrackierSDK.setUserPhone("+1234567890");
+      TrackierSDK.setUserId("user123");
+
+      // Set custom event data
+      trackierEvent.ev = { 
+        "product_name": "Test Product", 
+        "category": "Electronics" 
+      };
+
+      TrackierSDK.trackEvent(trackierEvent);
+      Alert.alert("Success", "Simple event tracked successfully!");
+    } catch (error) {
+      console.error("Error tracking simple event:", error);
+      Alert.alert("Error", "Failed to track simple event");
+    }
+  };
+
+  const trackRevenueEvent = () => {
+    try {
+      const trackierEvent = new TrackierEvent(TrackierEvent.PURCHASE);
+      trackierEvent.param1 = "Product789";
+      trackierEvent.param2 = "Premium";
+      trackierEvent.couponCode = "PREMIUM10";
+      trackierEvent.revenue = 29.99;
+      trackierEvent.currency = "USD";
+      trackierEvent.discount = 5.0;
+
+      // Set user information
+      TrackierSDK.setUserEmail("user@example.com");
+      TrackierSDK.setUserName("Jane Smith");
+      TrackierSDK.setUserPhone("+1987654321");
+      TrackierSDK.setUserId("user456");
+
+      TrackierSDK.trackEvent(trackierEvent);
+      Alert.alert("Success", "Revenue event tracked successfully!");
+    } catch (error) {
+      console.error("Error tracking revenue event:", error);
+      Alert.alert("Error", "Failed to track revenue event");
+    }
+  };
+
+  const createDynamicLink = async () => {
+    setIsLoading(true);
+    setDynamicLinkResult('');
+    
+    try {
+      const config = {
+        templateId: dynamicLinkConfig.templateId,
+        link: dynamicLinkConfig.link,
+        domainUriPrefix: dynamicLinkConfig.domainUriPrefix,
+        deepLinkValue: dynamicLinkConfig.deepLinkValue,
+        androidParameters: {
+          redirectLink: "https://play.google.com/store/apps/details?id=com.example.app"
+        },
+        iosParameters: {
+          redirectLink: "https://apps.apple.com/app/id123456789"
+        },
+        socialMetaTagParameters: {
+          title: "Amazing App",
+          description: "Check out this amazing app!",
+          imageLink: "https://example.com/image.jpg"
+        },
+        sdkParameters: {
+          param1: "value1",
+          param2: "value2"
+        },
+        attributionParameters: {
+          channel: "social",
+          campaign: "summer_sale",
+          mediaSource: "facebook",
+          p1: "custom_param1",
+          p2: "custom_param2",
+          p3: "custom_param3",
+          p4: "custom_param4",
+          p5: "custom_param5"
+        }
+      };
+
+      const result = await TrackierSDK.createDynamicLink(config);
+      setDynamicLinkResult(result);
+      Alert.alert("Success", "Dynamic link created successfully!");
+    } catch (error) {
+      console.error("Error creating dynamic link:", error);
+      setDynamicLinkResult(`Error: ${error}`);
+      Alert.alert("Error", "Failed to create dynamic link");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resolveDeeplinkUrl = async () => {
+    if (!deepLinkUrl.trim()) {
+      Alert.alert("Error", "Please enter a deep link URL");
+      return;
+    }
+
+    setIsLoading(true);
+    setResolveResult('');
+    
+    try {
+      const result = await TrackierSDK.resolveDeeplinkUrl(deepLinkUrl);
+      const resultText = `URL: ${result.url}\nSDK Params: ${JSON.stringify(result.sdkParams, null, 2)}`;
+      setResolveResult(resultText);
+      Alert.alert("Success", "Deep link resolved successfully!");
+    } catch (error) {
+      console.error("Error resolving deep link:", error);
+      setResolveResult(`Error: ${error}`);
+      Alert.alert("Error", "Failed to resolve deep link");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const parseDeepLink = () => {
+    try {
+      TrackierSDK.parseDeepLink(deepLinkUrl);
+      Alert.alert("Success", "Deep link parsed successfully!");
+    } catch (error) {
+      console.error("Error parsing deep link:", error);
+      Alert.alert("Error", "Failed to parse deep link");
+    }
+  };
 
   return (
-    <>
-      <View style={styles.container}>
-        <Text style={{ color: "black", fontSize: 30 }}>Trackier React-Native Sdk</Text>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={_onPress_trackSimpleEvent}>
-          <Text>Track Simple Event</Text>
-        </TouchableHighlight>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.title}>Trackier React-Native SDK</Text>
+        <Text style={styles.subtitle}>Demo App - All Features</Text>
+        
+        {trackierId && (
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>Trackier ID: {trackierId}</Text>
+          </View>
+        )}
 
-        <TouchableHighlight
-          style={styles.button}
-          onPress={_onPress_trackRevenueEvent}>
-          <Text>Track Revenue Event</Text>
-        </TouchableHighlight>
+        {/* Event Tracking Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Event Tracking</Text>
+          
+          <TouchableOpacity style={styles.button} onPress={trackSimpleEvent}>
+            <Text style={styles.buttonText}>Track Simple Event</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={trackRevenueEvent}>
+            <Text style={styles.buttonText}>Track Revenue Event</Text>
+          </TouchableOpacity>
         </View>
-    </>
+
+        {/* Dynamic Link Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dynamic Link Creation</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Template ID"
+            value={dynamicLinkConfig.templateId}
+            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, templateId: text})}
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Link"
+            value={dynamicLinkConfig.link}
+            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, link: text})}
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Domain URI Prefix"
+            value={dynamicLinkConfig.domainUriPrefix}
+            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, domainUriPrefix: text})}
+          />
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Deep Link Value"
+            value={dynamicLinkConfig.deepLinkValue}
+            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, deepLinkValue: text})}
+          />
+
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            onPress={createDynamicLink}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Create Dynamic Link</Text>
+            )}
+          </TouchableOpacity>
+
+          {dynamicLinkResult && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.resultTitle}>Dynamic Link Result:</Text>
+              <Text style={styles.resultText}>{dynamicLinkResult}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Deep Link Resolution Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Deep Link Resolution</Text>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Enter deep link URL"
+            value={deepLinkUrl}
+            onChangeText={setDeepLinkUrl}
+          />
+
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            onPress={resolveDeeplinkUrl}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Resolve Deep Link</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={parseDeepLink}>
+            <Text style={styles.buttonText}>Parse Deep Link</Text>
+          </TouchableOpacity>
+
+          {resolveResult && (
+            <View style={styles.resultContainer}>
+              <Text style={styles.resultTitle}>Resolve Result:</Text>
+              <Text style={styles.resultText}>{resolveResult}</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  scrollContainer: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  infoContainer: {
+    backgroundColor: '#e3f2fd',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#1976d2',
+    textAlign: 'center',
+  },
+  section: {
     backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  button: {
+    backgroundColor: '#2196f3',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  resultContainer: {
+    backgroundColor: '#f8f9fa',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  resultTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  resultText: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'monospace',
   },
 });

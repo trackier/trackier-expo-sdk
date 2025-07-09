@@ -9,6 +9,12 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.trackier.sdk.DeepLink
 import com.trackier.sdk.DeepLinkListener
+import com.trackier.sdk.AttributionParams;
+import com.trackier.sdk.dynamic_link.AndroidParameters
+import com.trackier.sdk.dynamic_link.DesktopParameters
+import com.trackier.sdk.dynamic_link.DynamicLink
+import com.trackier.sdk.dynamic_link.IosParameters
+import com.trackier.sdk.dynamic_link.SocialMetaTagParameters
 
 class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -47,6 +53,43 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
         }
       })
     }
+      if (initializeMap.hasKey("region")) {
+            val regionStr = initializeMap.getString("region")
+            if (regionStr != null) {
+                val selectedRegion = when (regionStr.uppercase()) {
+                    "IN" -> TrackierSDKConfig.Region.IN
+                    "GLOBAL" -> TrackierSDKConfig.Region.GLOBAL
+                    else -> {
+                        android.util.Log.w("TrackierExpoSdk", "Unknown region: $regionStr")
+                        null
+                    }
+                }
+                selectedRegion?.let { sdkConfig.setRegion(it) }
+            }
+       }
+            if (initializeMap.hasKey("attributionParams") && !initializeMap.isNull("attributionParams")) {
+            val attributionMap = initializeMap.getMap("attributionParams")
+            val attributionParams = AttributionParams()
+            if (attributionMap.hasKey("ad")) {
+                attributionParams.setAd(attributionMap.getString("ad"))
+            }
+            if (attributionMap.hasKey("partnerId")) {
+                attributionParams.setParterId(attributionMap.getString("partnerId"))
+            }
+            if (attributionMap.hasKey("channel")) {
+                attributionParams.setChannel(attributionMap.getString("channel"))
+            }
+            if (attributionMap.hasKey("adId")) {
+                attributionParams.setAdId(attributionMap.getString("adId"))
+            }
+            if (attributionMap.hasKey("siteId")) {
+                attributionParams.setSiteId(attributionMap.getString("siteId"))
+            }
+            sdkConfig.setAttributionParams(attributionParams)
+        } else {
+            android.util.Log.e("TrackierExpoSdk", "attributionParams map is missing or null")
+        }
+        
     com.trackier.sdk.TrackierSDK.initialize(sdkConfig)
   }
 
@@ -241,6 +284,128 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
   }
+
+  @ReactMethod
+  fun createDynamicLink(config: ReadableMap, promise: Promise) {
+      try {
+        val builder = DynamicLink.Builder()
+
+         if (config.hasKey("templateId")) {
+            builder.setTemplateId(config.getString("templateId"))
+        }
+        if (config.hasKey("link")) {
+            builder.setLink(Uri.parse(config.getString("link")))
+        }
+        if (config.hasKey("domainUriPrefix")) {
+            builder.setDomainUriPrefix(config.getString("domainUriPrefix"))
+        }
+        if (config.hasKey("deepLinkValue")) {
+            builder.setDeepLinkValue(config.getString("deepLinkValue"))
+        }
+        if (config.hasKey("androidParameters")) {
+          val androidParams = config.getMap("androidParameters")
+          val androidBuilder = AndroidParameters.Builder()
+        if (androidParams.hasKey("redirectLink")) {
+          androidBuilder.setRedirectLink(androidParams.getString("redirectLink"))
+        }
+         builder.setAndroidParameters(androidBuilder.build())
+        }
+        if (config.hasKey("iosParameters")) {
+          val iosParams = config.getMap("iosParameters")
+          val iosBuilder = IosParameters.Builder()
+        if (iosParams.hasKey("redirectLink")) {
+          iosBuilder.setRedirectLink(iosParams.getString("redirectLink"))
+        }
+          builder.setIosParameters(iosBuilder.build())
+        }
+        if (config.hasKey("desktopParameters")) {
+            val desktopParams = config.getMap("desktopParameters")
+            val desktopBuilder = DesktopParameters.Builder()
+        if (desktopParams.hasKey("redirectLink")) {
+            desktopBuilder.setRedirectLink(desktopParams.getString("redirectLink"))
+        }
+            builder.setDesktopParameters(desktopBuilder.build())
+        }
+        if (config.hasKey("socialMetaTagParameters")) {
+          val meta = config.getMap("socialMetaTagParameters")
+          val metaBuilder = SocialMetaTagParameters.Builder()
+          if (meta.hasKey("title")) {
+          metaBuilder.setTitle(meta.getString("title"))
+                }
+                if (meta.hasKey("description")) {
+                    metaBuilder.setDescription(meta.getString("description"))
+                }
+                if (meta.hasKey("imageLink")) {
+                    metaBuilder.setImageLink(meta.getString("imageLink"))
+                }
+                builder.setSocialMetaTagParameters(metaBuilder.build())
+            }
+            if (config.hasKey("sdkParameters")) {
+                val sdkParams = config.getMap("sdkParameters")
+                val paramMap = HashMap<String, String>()
+                val iterator = sdkParams.keySetIterator()
+                while (iterator.hasNextKey()) {
+                    val key = iterator.nextKey()
+                    paramMap[key] = sdkParams.getString(key) ?: ""
+                }
+                builder.setSDKParameters(paramMap)
+            }
+            if (config.hasKey("attributionParameters")) {
+                val attrParams = config.getMap("attributionParameters")
+                val channel = if (attrParams.hasKey("channel")) attrParams.getString("channel") else ""
+                val campaign = if (attrParams.hasKey("campaign")) attrParams.getString("campaign") else ""
+                val mediaSource = if (attrParams.hasKey("mediaSource")) attrParams.getString("mediaSource") else ""
+                val p1 = if (attrParams.hasKey("p1")) attrParams.getString("p1") else ""
+                val p2 = if (attrParams.hasKey("p2")) attrParams.getString("p2") else ""
+                val p3 = if (attrParams.hasKey("p3")) attrParams.getString("p3") else ""
+                val p4 = if (attrParams.hasKey("p4")) attrParams.getString("p4") else ""
+                val p5 = if (attrParams.hasKey("p5")) attrParams.getString("p5") else ""
+                builder.setAttributionParameters(channel, campaign, mediaSource, p1, p2, p3, p4, p5)
+            }
+
+            val dynamicLink = builder.build()
+            com.trackier.sdk.TrackierSDK.createDynamicLink(
+                dynamicLink,
+                { dynamicLinkUrl ->
+                    promise.resolve(dynamicLinkUrl)
+                    Unit
+                },
+                { error ->
+                    promise.reject("CREATE_DYNAMIC_LINK_FAILED", error)
+                    Unit
+                }
+            )
+        } catch (e: Exception) {
+            promise.reject("CREATE_DYNAMIC_LINK_EXCEPTION", e)
+        }
+    }
+
+    @ReactMethod
+    fun resolveDeeplinkUrl(url: String, promise: Promise) {
+        com.trackier.sdk.TrackierSDK.resolveDeeplinkUrl(
+            url,
+            { resultUrl ->
+                try {
+                    val result = Arguments.createMap()
+                    result.putString("url", resultUrl.getUrl())
+                    val sdkParamsMap = Arguments.createMap()
+                    resultUrl.getSdkParams()?.forEach { (key, value) ->
+                        sdkParamsMap.putString(key, value.toString())
+                    }
+                    result.putMap("sdkParams", sdkParamsMap)
+                    promise.resolve(result)
+                    Unit
+                } catch (e: Exception) {
+                    promise.reject("DL_PARSE_ERROR", e)
+                    Unit
+                }
+            },
+            { error ->
+                promise.reject("RESOLVE_DEEPLINK_FAILED", error)
+                Unit
+            }
+        )
+    }
 
 
   companion object {

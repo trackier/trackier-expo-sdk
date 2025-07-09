@@ -37,10 +37,14 @@ class TrackierConfig {
   manualMode: boolean = false;
   disableOrganicTrack: boolean = false;
   hasDeferredDeeplinkCallback?: boolean;
+  attributionParams: Record<string, string> = {};
+  region: string = ''; 
 
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
   static EnvironmentTesting: string = "testing";
+  static IN: string = "in"; 
+  static GLOBAL: string = "global"; 
 
   constructor(appToken: string, environment: string) {
 	  this.appToken = appToken;
@@ -67,6 +71,18 @@ class TrackierConfig {
 		  module_trackier_emitter.addListener('trackier_deferredDeeplink', deferredDeeplinkCallbackListener);
 	  }
 	}
+  }
+
+  setAttributionParams(params: Record<string, string>): void { 
+        if (typeof params !== 'object' || params === null) {
+            console.error('Invalid parameters passed to setAttributionParams');
+            return;
+        }
+        this.attributionParams = params;
+    }
+
+  setRegion(value: string): void { 
+    this.region = value;
   }
 }
 
@@ -103,6 +119,8 @@ interface TrackierSDKProps {
   getPid(): string;
   getIsRetargeting(): boolean;
   trackEvent(trackierEvent: TrackierEvent): void;
+  createDynamicLink(config: Record<string, any>): Promise<string>;
+  resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
 }
 
 let TrackierSDK: TrackierSDKProps = {
@@ -251,7 +269,15 @@ let TrackierSDK: TrackierSDKProps = {
 	}
 
 	module_trackier.trackEvent(trackierEvent);
-}
+  },
+
+  createDynamicLink: async function (config: Record<string, any>): Promise<string> {
+    return await module_trackier.createDynamicLink(config);
+  },
+
+  resolveDeeplinkUrl: async function (url: string): Promise<Record<string, any>> {
+    return await module_trackier.resolveDeeplinkUrl(url);
+  }
 };
 
 class TrackierEvent {
