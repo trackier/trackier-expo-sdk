@@ -43,6 +43,16 @@ android.iml
 # Cocoapods
 #
 example/ios/Pods
+example/ios/Podfile.lock
+example/ios/.xcode.env.local
+example/ios/TrackierExpoSdkExample.xcworkspace/
+
+# Ruby
+example/vendor/
+example/Gemfile.lock
+
+# Android build artifacts
+example/android/node_modules
 
 # Ruby
 example/vendor/
