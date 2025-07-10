@@ -36,7 +36,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       initializeMap.getString("environment") ?: ""
     )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("1.6.60")
+    sdkConfig.setSDKVersion("1.6.73")
     sdkConfig.setAppSecret(
       initializeMap.getString("secretId") ?: "",
       initializeMap.getString("secretKey") ?: ""
