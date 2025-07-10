@@ -200,6 +200,12 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		resolve(TrackierSDK.getTrackierId())
 	}
 	
+	@objc func storeRetargetting(_ url: String) {
+		// Implementation for storeRetargetting
+		// This method is declared in .mm file but not implemented in Swift
+		// Add implementation based on your requirements
+	}
+	
 	@objc func trackAsOrganic(_ value: Bool) {
 		// Do nothing, android only method
 	}

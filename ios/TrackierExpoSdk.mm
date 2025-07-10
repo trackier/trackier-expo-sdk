@@ -54,8 +54,6 @@ RCT_EXTERN_METHOD(getP2:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
 
 RCT_EXTERN_METHOD(getP3:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(getP3:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-
 RCT_EXTERN_METHOD(getP4:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(getP5:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

@@ -18,10 +18,10 @@ export default function App() {
   const [resolveResult, setResolveResult] = useState<string>('');
   const [trackierId, setTrackierId] = useState<string>('');
   const [deepLinkUrl, setDeepLinkUrl] = useState<string>(
-    'https://trackier58.u9ilnk.me/d/K5H7J2MkgU'
+    'https://trackier58.u9ilnk.me/d/nJhl3K1iC5'
   );
   const [dynamicLinkConfig, setDynamicLinkConfig] = useState({
-    templateId: 'your_template_id',
+    templateId: 'G3Og1t',
     link: 'https://your-domain.com',
     domainUriPrefix: 'https://your-domain.com',
     deepLinkValue: 'https://your-app.com/deep-link',
@@ -35,12 +35,12 @@ export default function App() {
   const initializeTrackierSDK = () => {
     try {
       const trackierConfig = new TrackierConfig(
-        "ee9f21fb-5848-4ed9-8d9c-e4093e6d220c", 
+        "be82576a-b4e8-40a7-8fe2-c25d924ddc58", 
         TrackierConfig.EnvironmentDevelopment
       );
 
       // Set app secret
-      trackierConfig.setAppSecret("640710587f41ea36ac0cb370", "9e043b7e-7f44-403c-ae11-8cf6bfe8daa0");
+      trackierConfig.setAppSecret("680b4f0038e509a7bbaf5a63", "91fc78c1-aedb-4895-81c8-073cae188708");
 
       // Set region (NEW FEATURE)
       trackierConfig.setRegion(TrackierConfig.IN); // or TrackierConfig.GLOBAL
