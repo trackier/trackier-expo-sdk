@@ -28,7 +28,7 @@ RCT_EXTERN_METHOD(parseDeepLink: (NSString *)url)
 
 RCT_EXTERN_METHOD(setLocalRefTrack:(BOOL *)value withDelim: (NSString *)delimeter)
 
-RCT_EXTERN_METHOD(setUserAdditionalDetails:(NSString *)key withValue: (NSString *)value)
+RCT_EXTERN_METHOD(setUserAdditionalDetails:(NSDictionary *)userAdditionalMap)
 
 RCT_EXTERN_METHOD(waitForATTUserAuthorization:(NSInteger *)timeoutInterval)
 

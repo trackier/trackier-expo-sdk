@@ -214,8 +214,26 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		// Do nothing, android only method
 	}
 
-	@objc func setUserAdditionalDetails(_ key: String, withValue value: String) {
-        // TODO
+	@objc func setUserAdditionalDetails(_ userAdditionalMap: NSDictionary) {
+		print("JS map received: \(userAdditionalMap)")
+		
+		var userAdditionalDetails: [String: Any] = [:]
+		
+		// Convert NSDictionary to Swift Dictionary
+		for (key, value) in userAdditionalMap {
+			if let keyString = key as? String {
+				userAdditionalDetails[keyString] = value
+			}
+		}
+		
+		// Optional: clean/map to string values if needed
+		var cleanedDetails: [String: String] = [:]
+		for (key, value) in userAdditionalDetails {
+			cleanedDetails[key] = "\(value)"
+		}
+		
+		print("Passing to SDK: \(cleanedDetails)")
+		TrackierSDK.setUserAdditionalDetails(userAdditionalDetails: cleanedDetails)
 	}
 
 	@objc func fireInstall() {

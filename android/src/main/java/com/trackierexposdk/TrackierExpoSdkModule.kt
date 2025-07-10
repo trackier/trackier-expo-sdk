@@ -239,11 +239,26 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setUserAdditionalDetails(readableMap: ReadableMap) {
-    val clevertapID = readableMap.getString("clevertap_uid")
-    val hashMap1 = HashMap<String, Any>()
-    hashMap1["clevertap_uid"] = clevertapID ?: ""
-    com.trackier.sdk.TrackierSDK.setUserAdditionalDetails(hashMap1)
+  fun setUserAdditionalDetails(userAdditionalDetailsMap: ReadableMap) {
+    android.util.Log.d("trackiersdk", "JS map received: $userAdditionalDetailsMap")
+
+    if (checkKey(userAdditionalDetailsMap, "userAdditionalMap")) {
+      val map = userAdditionalDetailsMap.getMap("userAdditionalMap")
+
+      if (map != null) {
+        val userAdditionalDetail = TrackierUtil.toMap(map)
+        if (userAdditionalDetail != null) {
+          // Optional: clean/map to string values if needed
+          val ev = LinkedHashMap<String, Any>()
+          for ((key, value) in userAdditionalDetail) {
+            ev[key] = value?.toString() ?: ""
+          }
+
+          android.util.Log.d("trackiersdk", "Passing to SDK: ${ev.toString()}")
+          com.trackier.sdk.TrackierSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
+        }
+      }
+    }
   }
 
   @ReactMethod

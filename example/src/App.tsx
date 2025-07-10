@@ -119,7 +119,12 @@ export default function App() {
       TrackierSDK.setUserName("Jane Smith");
       TrackierSDK.setUserPhone("+1987654321");
       TrackierSDK.setUserId("user456");
-
+      TrackierSDK.setUserAdditionalDetails({
+      clevertap_uid: "user123",
+      user_type: "premium",
+      subscription_status: "active",
+      last_login: "2024-01-15"
+      });
       TrackierSDK.trackEvent(trackierEvent);
       Alert.alert("Success", "Revenue event tracked successfully!");
     } catch (error) {
@@ -210,6 +215,16 @@ export default function App() {
     }
   };
 
+  const setUserAdditionalDetails = () => {
+    try {
+      TrackierSDK.setUserAdditionalDetails({clevertap_uid: "sanuuu"});
+      Alert.alert("Success", "User additional details set successfully!");
+    } catch (error) {
+      console.error("Error setting user additional details:", error);
+      Alert.alert("Error", "Failed to set user additional details");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -232,6 +247,10 @@ export default function App() {
 
           <TouchableOpacity style={styles.button} onPress={trackRevenueEvent}>
             <Text style={styles.buttonText}>Track Revenue Event</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={setUserAdditionalDetails}>
+            <Text style={styles.buttonText}>Set User Additional Details</Text>
           </TouchableOpacity>
         </View>
 

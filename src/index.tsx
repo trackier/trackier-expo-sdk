@@ -29,7 +29,7 @@ if (Platform.OS === 'android') {
 	module_trackier_emitter = new NativeEventEmitter(NativeModules.TrackierExpoSdk);
 }
 
-class TrackierConfig {
+ class TrackierConfig {
   appToken: string;
   environment: string;
   secretId: string = '';
@@ -86,7 +86,7 @@ class TrackierConfig {
   }
 }
 
-interface TrackierSDKProps {
+ interface TrackierSDKProps {
   initialize(trackierConfig: TrackierConfig): void;
   setEnabled(value: boolean): void;
   getTrackierId(): Promise<string>;
@@ -96,7 +96,7 @@ interface TrackierSDKProps {
   setUserPhone(userPhone: string): void;
   trackAsOrganic(value: boolean): void;
   setLocalRefTrack(value: string, delimiter: string): void;
-  setUserAdditionalDetails(key: string, value: string): void;
+  setUserAdditionalDetails(userAdditionalMap: Record<string, any>): void;
   waitForATTUserAuthorization(timeoutInterval: number): void;
   updateAppleAdsToken(token: string):void;
   fireInstall(): void;
@@ -123,7 +123,7 @@ interface TrackierSDKProps {
   resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
 }
 
-let TrackierSDK: TrackierSDKProps = {
+ let TrackierSDK: TrackierSDKProps = {
   initialize: function (trackierConfig: TrackierConfig) {
 	  module_trackier.initializeSDK(trackierConfig);
   },
@@ -161,8 +161,12 @@ let TrackierSDK: TrackierSDKProps = {
 	  module_trackier.setLocalRefTrack(value, delimiter);
   },
 
-  setUserAdditionalDetails: function (value: string) {
-	  module_trackier.setUserAdditionalDetails(value);
+  setUserAdditionalDetails: function (userAdditionalMap: Record<string, any>) {
+	  if (Platform.OS === 'android') {
+		module_trackier.setUserAdditionalDetails({userAdditionalMap});
+	  } else if (Platform.OS === 'ios') {
+		module_trackier.setUserAdditionalDetails(userAdditionalMap);
+	  }
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
@@ -280,7 +284,7 @@ let TrackierSDK: TrackierSDKProps = {
   }
 };
 
-class TrackierEvent {
+ class TrackierEvent {
   eventId: string;
   orderId: string | null = null;
   currency: string | null = null;
