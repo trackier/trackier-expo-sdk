@@ -29,7 +29,7 @@ if (Platform.OS === 'android') {
 	module_trackier_emitter = new NativeEventEmitter(NativeModules.TrackierExpoSdk);
 }
 
-class TrackierConfig {
+ class TrackierConfig {
   appToken: string;
   environment: string;
   secretId: string = '';
@@ -37,10 +37,14 @@ class TrackierConfig {
   manualMode: boolean = false;
   disableOrganicTrack: boolean = false;
   hasDeferredDeeplinkCallback?: boolean;
+  attributionParams: Record<string, string> = {};
+  region: string = ''; 
 
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
   static EnvironmentTesting: string = "testing";
+  static IN: string = "in"; 
+  static GLOBAL: string = "global"; 
 
   constructor(appToken: string, environment: string) {
 	  this.appToken = appToken;
@@ -68,9 +72,21 @@ class TrackierConfig {
 	  }
 	}
   }
+
+  setAttributionParams(params: Record<string, string>): void { 
+        if (typeof params !== 'object' || params === null) {
+            console.error('Invalid parameters passed to setAttributionParams');
+            return;
+        }
+        this.attributionParams = params;
+    }
+
+  setRegion(value: string): void { 
+    this.region = value;
+  }
 }
 
-interface TrackierSDKProps {
+ interface TrackierSDKProps {
   initialize(trackierConfig: TrackierConfig): void;
   setEnabled(value: boolean): void;
   getTrackierId(): Promise<string>;
@@ -80,7 +96,7 @@ interface TrackierSDKProps {
   setUserPhone(userPhone: string): void;
   trackAsOrganic(value: boolean): void;
   setLocalRefTrack(value: string, delimiter: string): void;
-  setUserAdditionalDetails(key: string, value: string): void;
+  setUserAdditionalDetails(userAdditionalMap: Record<string, any>): void;
   waitForATTUserAuthorization(timeoutInterval: number): void;
   updateAppleAdsToken(token: string):void;
   fireInstall(): void;
@@ -103,9 +119,11 @@ interface TrackierSDKProps {
   getPid(): string;
   getIsRetargeting(): boolean;
   trackEvent(trackierEvent: TrackierEvent): void;
+  createDynamicLink(config: Record<string, any>): Promise<string>;
+  resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
 }
 
-let TrackierSDK: TrackierSDKProps = {
+ let TrackierSDK: TrackierSDKProps = {
   initialize: function (trackierConfig: TrackierConfig) {
 	  module_trackier.initializeSDK(trackierConfig);
   },
@@ -143,8 +161,12 @@ let TrackierSDK: TrackierSDKProps = {
 	  module_trackier.setLocalRefTrack(value, delimiter);
   },
 
-  setUserAdditionalDetails: function (value: string) {
-	  module_trackier.setUserAdditionalDetails(value);
+  setUserAdditionalDetails: function (userAdditionalMap: Record<string, any>) {
+	  if (Platform.OS === 'android') {
+		module_trackier.setUserAdditionalDetails({userAdditionalMap});
+	  } else if (Platform.OS === 'ios') {
+		module_trackier.setUserAdditionalDetails(userAdditionalMap);
+	  }
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
@@ -251,10 +273,18 @@ let TrackierSDK: TrackierSDKProps = {
 	}
 
 	module_trackier.trackEvent(trackierEvent);
-}
+  },
+
+  createDynamicLink: async function (config: Record<string, any>): Promise<string> {
+    return await module_trackier.createDynamicLink(config);
+  },
+
+  resolveDeeplinkUrl: async function (url: string): Promise<Record<string, any>> {
+    return await module_trackier.resolveDeeplinkUrl(url);
+  }
 };
 
-class TrackierEvent {
+ class TrackierEvent {
   eventId: string;
   orderId: string | null = null;
   currency: string | null = null;
