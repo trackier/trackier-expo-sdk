@@ -45,6 +45,12 @@ export default function App() {
       // Set region (NEW FEATURE)
       trackierConfig.setRegion(TrackierConfig.IN); // or TrackierConfig.GLOBAL
 
+      // Set Facebook App ID for Meta attribution (Android)
+      trackierConfig.setFacebookAppId("123456789012345"); // Replace with your actual Facebook App ID
+
+      // Set custom Android ID for device identification (Android)
+      trackierConfig.setAndroidId("custom_android_device_id_123"); // Replace with your custom Android ID
+
       // Set attribution parameters (NEW FEATURE)
       trackierConfig.setAttributionParams({
         ad: "test_ad",

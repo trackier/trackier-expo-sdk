@@ -36,7 +36,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       initializeMap.getString("environment") ?: ""
     )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("1.6.73")
+    sdkConfig.setSDKVersion("1.6.75")
     sdkConfig.setAppSecret(
       initializeMap.getString("secretId") ?: "",
       initializeMap.getString("secretKey") ?: ""
@@ -91,6 +91,20 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       }
     } else {
       android.util.Log.e("TrackierExpoSdk", "attributionParams map is missing or null")
+    }
+
+    if (initializeMap.hasKey("facebookAppId")) {
+      val facebookAppId = initializeMap.getString("facebookAppId")
+      if (facebookAppId != null && facebookAppId.isNotEmpty()) {
+        sdkConfig.setFacebookAppId(facebookAppId)
+      }
+    }
+
+    if (initializeMap.hasKey("androidId")) {
+      val androidId = initializeMap.getString("androidId")
+      if (androidId != null && androidId.isNotEmpty()) {
+        sdkConfig.setAndroidId(androidId)
+      }
     }
     
     com.trackier.sdk.TrackierSDK.initialize(sdkConfig)

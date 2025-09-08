@@ -39,6 +39,8 @@ if (Platform.OS === 'android') {
   hasDeferredDeeplinkCallback?: boolean;
   attributionParams: Record<string, string> = {};
   region: string = ''; 
+  facebookAppId: string = ''; // Default Facebook App ID
+  androidId: string = ''; // Default Android ID
 
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
@@ -83,6 +85,14 @@ if (Platform.OS === 'android') {
 
   setRegion(value: string): void { 
     this.region = value;
+  }
+
+  setFacebookAppId(value: string): void { 
+    this.facebookAppId = value;
+  }
+
+  setAndroidId(value: string): void { 
+    this.androidId = value;
   }
 }
 
