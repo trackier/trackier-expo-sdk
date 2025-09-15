@@ -36,7 +36,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       initializeMap.getString("environment") ?: ""
     )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("1.6.75")
+    sdkConfig.setSDKVersion("1.6.76")
     sdkConfig.setAppSecret(
       initializeMap.getString("secretId") ?: "",
       initializeMap.getString("secretKey") ?: ""
@@ -106,7 +106,35 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
         sdkConfig.setAndroidId(androidId)
       }
     }
-    
+
+    if (initializeMap.hasKey("appId")) {
+      val appId = initializeMap.getString("appId")
+      if (appId != null && appId.isNotEmpty()) {
+        sdkConfig.setAppID(appId)
+      }
+    }
+
+    if (initializeMap.hasKey("encryptionKey")) {
+      val encryptionKey = initializeMap.getString("encryptionKey")
+      if (encryptionKey != null && encryptionKey.isNotEmpty()) {
+        sdkConfig.setEncryptionKey(encryptionKey)
+      }
+    }
+
+    if (initializeMap.hasKey("encryptionType")) {
+      val encryptionTypeStr = initializeMap.getString("encryptionType")
+      if (encryptionTypeStr != null) {
+        val encryptionType = when (encryptionTypeStr.uppercase()) {
+          "AES_GCM" -> TrackierSDKConfig.EncryptionType.AES_GCM
+          else -> {
+            android.util.Log.w("TrackierExpoSdk", "Unknown encryption type: $encryptionTypeStr")
+            null
+          }
+        }
+        encryptionType?.let { sdkConfig.setEncryptionType(it) }
+      }
+    }
+
     com.trackier.sdk.TrackierSDK.initialize(sdkConfig)
   }
 
