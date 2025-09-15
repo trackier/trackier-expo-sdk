@@ -1,6 +1,7 @@
 package com.trackierexposdk
 
 import android.net.Uri
+import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -114,24 +115,17 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       }
     }
 
+    if (initializeMap.hasKey("encryptionType")) {
+      val encryptionTypeStr = initializeMap.getString("encryptionType")
+      if (encryptionTypeStr != null) {
+        sdkConfig.setEncryptionType(TrackierSDKConfig.EncryptionType.AES_GCM)
+      }
+    }
+
     if (initializeMap.hasKey("encryptionKey")) {
       val encryptionKey = initializeMap.getString("encryptionKey")
       if (encryptionKey != null && encryptionKey.isNotEmpty()) {
         sdkConfig.setEncryptionKey(encryptionKey)
-      }
-    }
-
-    if (initializeMap.hasKey("encryptionType")) {
-      val encryptionTypeStr = initializeMap.getString("encryptionType")
-      if (encryptionTypeStr != null) {
-        val encryptionType = when (encryptionTypeStr.uppercase()) {
-          "AES_GCM" -> TrackierSDKConfig.EncryptionType.AES_GCM
-          else -> {
-            android.util.Log.w("TrackierExpoSdk", "Unknown encryption type: $encryptionTypeStr")
-            null
-          }
-        }
-        encryptionType?.let { sdkConfig.setEncryptionType(it) }
       }
     }
 
