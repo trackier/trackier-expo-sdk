@@ -1,6 +1,7 @@
 package com.trackierexposdk
 
 import android.net.Uri
+import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -36,7 +37,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       initializeMap.getString("environment") ?: ""
     )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("1.6.75")
+    sdkConfig.setSDKVersion("1.6.76")
     sdkConfig.setAppSecret(
       initializeMap.getString("secretId") ?: "",
       initializeMap.getString("secretKey") ?: ""
@@ -106,7 +107,28 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
         sdkConfig.setAndroidId(androidId)
       }
     }
-    
+
+    if (initializeMap.hasKey("appId")) {
+      val appId = initializeMap.getString("appId")
+      if (appId != null && appId.isNotEmpty()) {
+        sdkConfig.setAppID(appId)
+      }
+    }
+
+    if (initializeMap.hasKey("encryptionType")) {
+      val encryptionTypeStr = initializeMap.getString("encryptionType")
+      if (encryptionTypeStr != null) {
+        sdkConfig.setEncryptionType(TrackierSDKConfig.EncryptionType.AES_GCM)
+      }
+    }
+
+    if (initializeMap.hasKey("encryptionKey")) {
+      val encryptionKey = initializeMap.getString("encryptionKey")
+      if (encryptionKey != null && encryptionKey.isNotEmpty()) {
+        sdkConfig.setEncryptionKey(encryptionKey)
+      }
+    }
+
     com.trackier.sdk.TrackierSDK.initialize(sdkConfig)
   }
 

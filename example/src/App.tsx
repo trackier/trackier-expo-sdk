@@ -51,6 +51,15 @@ export default function App() {
       // Set custom Android ID for device identification (Android)
       trackierConfig.setAndroidId("custom_android_device_id_123"); // Replace with your custom Android ID
 
+      // Set App ID
+      trackierConfig.setAppId("802830299"); // Replace with your actual App ID
+
+      // Set encryption key for secure data transmission 
+      trackierConfig.setEncryptionKey("xxxEncryTest29393"); // Replace with your encryption key
+
+      // Set encryption type 
+      trackierConfig.setEncryptionType(TrackierConfig.EncryptionType.AES_GCM); // Use AES_GCM encryption
+
       // Set attribution parameters (NEW FEATURE)
       trackierConfig.setAttributionParams({
         ad: "test_ad",

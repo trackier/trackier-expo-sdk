@@ -41,12 +41,19 @@ if (Platform.OS === 'android') {
   region: string = ''; 
   facebookAppId: string = ''; // Default Facebook App ID
   androidId: string = ''; // Default Android ID
+  appId: string = ''; // Default App ID
+  encryptionKey: string = ''; // Default Encryption Key
+  encryptionType: string = 'AES_GCM'; // Default Encryption Type
 
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
   static EnvironmentTesting: string = "testing";
   static IN: string = "in"; 
-  static GLOBAL: string = "global"; 
+  static GLOBAL: string = "global";
+  
+  static EncryptionType = {
+    AES_GCM: "AES_GCM"
+  }; 
 
   constructor(appToken: string, environment: string) {
 	  this.appToken = appToken;
@@ -93,6 +100,18 @@ if (Platform.OS === 'android') {
 
   setAndroidId(value: string): void { 
     this.androidId = value;
+  }
+
+  setAppId(value: string): void { 
+    this.appId = value;
+  }
+
+  setEncryptionKey(value: string): void { 
+    this.encryptionKey = value;
+  }
+
+  setEncryptionType(value: string): void { 
+    this.encryptionType = value;
   }
 }
 
