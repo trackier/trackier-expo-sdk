@@ -128,6 +128,8 @@ if (Platform.OS === 'android') {
   setUserAdditionalDetails(userAdditionalMap: Record<string, any>): void;
   waitForATTUserAuthorization(timeoutInterval: number): void;
   updateAppleAdsToken(token: string):void;
+  updatePostbackConversion(conversionValue: number): void;
+  subscribeDeeplink(): void;
   fireInstall(): void;
   parseDeepLink(value: string): void;
   setIMEI(imei1: string, imei2: string): void;
@@ -204,6 +206,14 @@ if (Platform.OS === 'android') {
 
   updateAppleAdsToken: function (token: string) {
     module_trackier.updateAppleAdsToken(token);
+  },
+
+  updatePostbackConversion: function (conversionValue: number) {
+    module_trackier.updatePostbackConversion(conversionValue);
+  },
+
+  subscribeDeeplink: function () {
+    module_trackier.subscribeDeeplink();
   },
 
   fireInstall: function () {

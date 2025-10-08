@@ -131,6 +131,14 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 	@objc func updateAppleAdsToken(_ token: String) {
 		TrackierSDK.updateAppleAdsToken(token: token)
 	}
+
+	@objc func updatePostbackConversion(_ conversionValue: Int) {
+		TrackierSDK.updatePostbackConversion(conversionValue: conversionValue)
+	}
+
+	@objc func subscribeDeeplink() {
+		TrackierSDK.subscribeAttributionlink()
+	}
 	
 	@objc func getAd(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
 		resolve(TrackierSDK.getAd())
