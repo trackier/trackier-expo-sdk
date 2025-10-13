@@ -40,7 +40,7 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		let config = TrackierSDKConfig(appToken: appToken , env: environment)
 		config.setSDKType(sdkType: "react_native_sdk")
 		config.setAppSecret(secretId: dict["secretId"] as! String, secretKey: dict["secretKey"] as! String)
-		config.setSDKVersion(sdkVersion: "1.6.76")
+		config.setSDKVersion(sdkVersion: "1.6.77")
 		if (deeplinking != nil) {
 			config.setDeeplinkListerner(listener: self)
 		}
