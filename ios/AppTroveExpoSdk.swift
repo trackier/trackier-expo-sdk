@@ -4,8 +4,8 @@ import trackier_ios_sdk
 import React
 
 
-@objc(TrackierExpoSdk)
-class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
+@objc(AppTroveExpoSdk)
+class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 
   var hasListeners = false
 	
@@ -24,12 +24,12 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		if (result.getUrl() == nil) {
 			print("Deeplink URL is nil")
 		} else {
-			sendEvent(withName: "trackier_deferredDeeplink", body: result.getUrl())
+			sendEvent(withName: "apptrove_deferredDeeplink", body: result.getUrl())
 		}
 	}
 	
 	open override func supportedEvents() -> [String] {
-		["trackier_deferredDeeplink"]
+		["apptrove_deferredDeeplink"]
 	  }
 
     @objc(initializeSDK:)
@@ -40,7 +40,7 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		let config = TrackierSDKConfig(appToken: appToken , env: environment)
 		config.setSDKType(sdkType: "react_native_sdk")
 		config.setAppSecret(secretId: dict["secretId"] as! String, secretKey: dict["secretKey"] as! String)
-		config.setSDKVersion(sdkVersion: "1.6.77")
+		config.setSDKVersion(sdkVersion: "2.0.0")
 		if (deeplinking != nil) {
 			config.setDeeplinkListerner(listener: self)
 		}
@@ -204,7 +204,7 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		resolve(TrackierSDK.getIsRetargeting())
 	}
 
-	@objc func getTrackierId(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+	@objc func getAppTroveId(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
 		resolve(TrackierSDK.getTrackierId())
 	}
 	
@@ -218,7 +218,20 @@ class TrackierExpoSdk: RCTEventEmitter, DeepLinkListener {
 		// Do nothing, android only method
 	}
 
-	@objc func setLocalRefTrack(_ value: Bool, withDelim delimeter: String) {
+	@objc func setLocalRefTrack(_ value: String, withDelim delimeter: String) {
+		// Do nothing, android only method
+	}
+	
+	@objc func setAppSecret(_ dict: NSDictionary) {
+		// App secret is set during initialization, this is a no-op for iOS
+		// Kept for API compatibility
+	}
+	
+	@objc func setIMEI(_ imei1: String, imei2: String) {
+		// Do nothing, android only method
+	}
+	
+	@objc func setMacAddress(_ macAddress: String) {
 		// Do nothing, android only method
 	}
 

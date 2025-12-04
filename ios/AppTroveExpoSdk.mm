@@ -2,7 +2,7 @@
 #import "React/RCTEventEmitter.h"
 #import <React/RCTLog.h>
 
-@interface RCT_EXTERN_MODULE(TrackierExpoSdk, NSObject)
+@interface RCT_EXTERN_MODULE(AppTroveExpoSdk, NSObject)
 
 RCT_EXTERN_METHOD(initializeSDK:(NSDictionary *)dict)
 
@@ -26,7 +26,7 @@ RCT_EXTERN_METHOD(fireInstall)
 
 RCT_EXTERN_METHOD(parseDeepLink: (NSString *)url)
 
-RCT_EXTERN_METHOD(setLocalRefTrack:(BOOL *)value withDelim: (NSString *)delimeter)
+RCT_EXTERN_METHOD(setLocalRefTrack:(NSString *)value withDelim: (NSString *)delimeter)
 
 RCT_EXTERN_METHOD(setUserAdditionalDetails:(NSDictionary *)userAdditionalMap)
 
@@ -66,13 +66,21 @@ RCT_EXTERN_METHOD(getPid:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRej
 
 RCT_EXTERN_METHOD(getIsRetargeting:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(getTrackierId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(getAppTroveId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(storeRetargetting:(NSString *)url)
 
 RCT_EXTERN_METHOD(createDynamicLink:(NSDictionary *)config resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(resolveDeeplinkUrl:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(subscribeDeeplink)
+
+RCT_EXTERN_METHOD(updatePostbackConversion:(NSInteger *)conversionValue)
+
+RCT_EXTERN_METHOD(setIMEI:(NSString *)imei1 imei2:(NSString *)imei2)
+
+RCT_EXTERN_METHOD(setMacAddress:(NSString *)macAddress)
 
 + (BOOL)requiresMainQueueSetup
 {

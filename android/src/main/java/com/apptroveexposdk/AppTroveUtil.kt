@@ -1,11 +1,11 @@
-package com.trackierexposdk
+package com.apptroveexposdk
 
 import android.util.Log
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
 
-object TrackierUtil {
+object AppTroveUtil {
 
   fun toMap(readableMap: ReadableMap?): Map<String, Any>? {
     if (readableMap == null) {
@@ -25,7 +25,7 @@ object TrackierUtil {
         result[key] = value.toString()
       }
     } catch (e: Exception) {
-      Log.e("trackiersdk", "Error converting ReadableMap to Map: ${e.message}", e)
+      Log.e("apptrovesdk", "Error converting ReadableMap to Map: ${e.message}", e)
       return result
     }
     return result
@@ -68,4 +68,3 @@ object TrackierUtil {
     return result
   }
 }
-

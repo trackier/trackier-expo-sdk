@@ -1,4 +1,4 @@
-package com.trackierexposdk
+package com.apptroveexposdk
 
 import android.net.Uri
 import android.util.Log
@@ -9,9 +9,9 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.trackier.sdk.AttributionParams
 import com.trackier.sdk.DeepLink
 import com.trackier.sdk.DeepLinkListener
-import com.trackier.sdk.AttributionParams
 import com.trackier.sdk.TrackierSDKConfig
 import com.trackier.sdk.dynamic_link.AndroidParameters
 import com.trackier.sdk.dynamic_link.DesktopParameters
@@ -19,8 +19,8 @@ import com.trackier.sdk.dynamic_link.DynamicLink
 import com.trackier.sdk.dynamic_link.IosParameters
 import com.trackier.sdk.dynamic_link.SocialMetaTagParameters
 
-class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
+class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
+        ReactContextBaseJavaModule(reactContext) {
 
   override fun getName(): String {
     return NAME
@@ -31,41 +31,41 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun initializeSDK(initializeMap: ReadableMap) {
-    val sdkConfig = TrackierSDKConfig(
-      reactApplicationContext,
-      initializeMap.getString("appToken") ?: "",
-      initializeMap.getString("environment") ?: ""
-    )
+    val sdkConfig =
+            TrackierSDKConfig(
+                    reactApplicationContext,
+                    initializeMap.getString("appToken") ?: "",
+                    initializeMap.getString("environment") ?: ""
+            )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("1.6.77")
+    sdkConfig.setSDKVersion("2.0.0")
     sdkConfig.setAppSecret(
-      initializeMap.getString("secretId") ?: "",
-      initializeMap.getString("secretKey") ?: ""
+            initializeMap.getString("secretId") ?: "",
+            initializeMap.getString("secretKey") ?: ""
     )
     sdkConfig.setManualMode(initializeMap.getBoolean("manualMode"))
     sdkConfig.disableOrganicTracking(initializeMap.getBoolean("disableOrganicTrack"))
     if (initializeMap.hasKey("hasDeferredDeeplinkCallback")) {
-      sdkConfig.setDeepLinkListener(object : DeepLinkListener {
-        override fun onDeepLinking(deepLink: DeepLink) {
-          sendEvent(
-            reactApplicationContext,
-            "trackier_deferredDeeplink",
-            deepLink.getUrl()
-          )
-        }
-      })
+      sdkConfig.setDeepLinkListener(
+              object : DeepLinkListener {
+                override fun onDeepLinking(deepLink: DeepLink) {
+                  sendEvent(reactApplicationContext, "apptrove_deferredDeeplink", deepLink.getUrl())
+                }
+              }
+      )
     }
     if (initializeMap.hasKey("region")) {
       val regionStr = initializeMap.getString("region")
       if (regionStr != null) {
-        val selectedRegion = when (regionStr.uppercase()) {
-          "IN" -> TrackierSDKConfig.Region.IN
-          "GLOBAL" -> TrackierSDKConfig.Region.GLOBAL
-          else -> {
-            android.util.Log.w("TrackierExpoSdk", "Unknown region: $regionStr")
-            null
-          }
-        }
+        val selectedRegion =
+                when (regionStr.uppercase()) {
+                  "IN" -> TrackierSDKConfig.Region.IN
+                  "GLOBAL" -> TrackierSDKConfig.Region.GLOBAL
+                  else -> {
+                    android.util.Log.w("AppTroveExpoSdk", "Unknown region: $regionStr")
+                    null
+                  }
+                }
         selectedRegion?.let { sdkConfig.setRegion(it) }
       }
     }
@@ -91,7 +91,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
         sdkConfig.setAttributionParams(attributionParams)
       }
     } else {
-      android.util.Log.e("TrackierExpoSdk", "attributionParams map is missing or null")
+      android.util.Log.e("AppTroveExpoSdk", "attributionParams map is missing or null")
     }
 
     if (initializeMap.hasKey("facebookAppId")) {
@@ -138,7 +138,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun getTrackierId(promise: Promise) {
+  fun getAppTroveId(promise: Promise) {
     val id = com.trackier.sdk.TrackierSDK.getTrackierId()
     promise.resolve(id)
   }
@@ -276,13 +276,13 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setUserAdditionalDetails(userAdditionalDetailsMap: ReadableMap) {
-    android.util.Log.d("trackiersdk", "JS map received: $userAdditionalDetailsMap")
+    android.util.Log.d("apptrovesdk", "JS map received: $userAdditionalDetailsMap")
 
     if (checkKey(userAdditionalDetailsMap, "userAdditionalMap")) {
       val map = userAdditionalDetailsMap.getMap("userAdditionalMap")
 
       if (map != null) {
-        val userAdditionalDetail = TrackierUtil.toMap(map)
+        val userAdditionalDetail = AppTroveUtil.toMap(map)
         if (userAdditionalDetail != null) {
           // Optional: clean/map to string values if needed
           val ev = LinkedHashMap<String, Any>()
@@ -290,7 +290,7 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
             ev[key] = value?.toString() ?: ""
           }
 
-          android.util.Log.d("trackiersdk", "Passing to SDK: ${ev.toString()}")
+          android.util.Log.d("apptrovesdk", "Passing to SDK: ${ev.toString()}")
           com.trackier.sdk.TrackierSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
         }
       }
@@ -298,35 +298,35 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun trackEvent(trackierEventMap: ReadableMap) {
-    val trackierEvent = com.trackier.sdk.TrackierEvent(trackierEventMap.getString("eventId") ?: "")
+  fun trackEvent(eventMap: ReadableMap) {
+    val appTroveEvent = com.trackier.sdk.TrackierEvent(eventMap.getString("eventId") ?: "")
 
-    trackierEvent.orderId = trackierEventMap.getString("orderId")
-    trackierEvent.currency = trackierEventMap.getString("currency")
-    trackierEvent.couponCode = trackierEventMap.getString("couponCode")
-    trackierEvent.productId = trackierEventMap.getString("productId")
-    trackierEvent.discount = trackierEventMap.getDouble("discount").toFloat()
-    trackierEvent.param1 = trackierEventMap.getString("param1")
-    trackierEvent.param2 = trackierEventMap.getString("param2")
-    trackierEvent.param3 = trackierEventMap.getString("param3")
-    trackierEvent.param4 = trackierEventMap.getString("param4")
-    trackierEvent.param5 = trackierEventMap.getString("param5")
-    trackierEvent.param6 = trackierEventMap.getString("param6")
-    trackierEvent.param7 = trackierEventMap.getString("param7")
-    trackierEvent.param8 = trackierEventMap.getString("param8")
-    trackierEvent.param9 = trackierEventMap.getString("param9")
-    trackierEvent.param10 = trackierEventMap.getString("param10")
-    trackierEvent.revenue = trackierEventMap.getDouble("revenue")
+    appTroveEvent.orderId = eventMap.getString("orderId")
+    appTroveEvent.currency = eventMap.getString("currency")
+    appTroveEvent.couponCode = eventMap.getString("couponCode")
+    appTroveEvent.productId = eventMap.getString("productId")
+    appTroveEvent.discount = eventMap.getDouble("discount").toFloat()
+    appTroveEvent.param1 = eventMap.getString("param1")
+    appTroveEvent.param2 = eventMap.getString("param2")
+    appTroveEvent.param3 = eventMap.getString("param3")
+    appTroveEvent.param4 = eventMap.getString("param4")
+    appTroveEvent.param5 = eventMap.getString("param5")
+    appTroveEvent.param6 = eventMap.getString("param6")
+    appTroveEvent.param7 = eventMap.getString("param7")
+    appTroveEvent.param8 = eventMap.getString("param8")
+    appTroveEvent.param9 = eventMap.getString("param9")
+    appTroveEvent.param10 = eventMap.getString("param10")
+    appTroveEvent.revenue = eventMap.getDouble("revenue")
 
-    val eventValues = TrackierUtil.toMap(trackierEventMap.getMap("ev"))
+    val eventValues = AppTroveUtil.toMap(eventMap.getMap("ev"))
     val ev = LinkedHashMap<String, Any>()
     eventValues?.let {
       for ((key, value) in it) {
         ev[key] = value.toString()
       }
     }
-    trackierEvent.ev = ev
-    com.trackier.sdk.TrackierSDK.trackEvent(trackierEvent)
+    appTroveEvent.ev = ev
+    com.trackier.sdk.TrackierSDK.trackEvent(appTroveEvent)
   }
 
   private fun checkKey(map: ReadableMap, key: String): Boolean {
@@ -335,8 +335,8 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
 
   private fun sendEvent(reactContext: ReactApplicationContext, eventName: String, params: String?) {
     reactContext
-      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-      .emit(eventName, params)
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit(eventName, params)
   }
 
   @ReactMethod
@@ -417,9 +417,13 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
       if (config.hasKey("attributionParameters")) {
         val attrParams = config.getMap("attributionParameters")
         if (attrParams != null) {
-          val channel = if (attrParams.hasKey("channel")) attrParams.getString("channel") ?: "" else ""
-          val campaign = if (attrParams.hasKey("campaign")) attrParams.getString("campaign") ?: "" else ""
-          val mediaSource = if (attrParams.hasKey("mediaSource")) attrParams.getString("mediaSource") ?: "" else ""
+          val channel =
+                  if (attrParams.hasKey("channel")) attrParams.getString("channel") ?: "" else ""
+          val campaign =
+                  if (attrParams.hasKey("campaign")) attrParams.getString("campaign") ?: "" else ""
+          val mediaSource =
+                  if (attrParams.hasKey("mediaSource")) attrParams.getString("mediaSource") ?: ""
+                  else ""
           val p1 = if (attrParams.hasKey("p1")) attrParams.getString("p1") ?: "" else ""
           val p2 = if (attrParams.hasKey("p2")) attrParams.getString("p2") ?: "" else ""
           val p3 = if (attrParams.hasKey("p3")) attrParams.getString("p3") ?: "" else ""
@@ -431,15 +435,15 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
 
       val dynamicLink = builder.build()
       com.trackier.sdk.TrackierSDK.createDynamicLink(
-        dynamicLink,
-        { dynamicLinkUrl ->
-          promise.resolve(dynamicLinkUrl)
-          Unit
-        },
-        { error ->
-          promise.reject("CREATE_DYNAMIC_LINK_FAILED", error)
-          Unit
-        }
+              dynamicLink,
+              { dynamicLinkUrl ->
+                promise.resolve(dynamicLinkUrl)
+                Unit
+              },
+              { error ->
+                promise.reject("CREATE_DYNAMIC_LINK_FAILED", error)
+                Unit
+              }
       )
     } catch (e: Exception) {
       promise.reject("CREATE_DYNAMIC_LINK_EXCEPTION", e)
@@ -449,31 +453,31 @@ class TrackierExpoSdkModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun resolveDeeplinkUrl(url: String, promise: Promise) {
     com.trackier.sdk.TrackierSDK.resolveDeeplinkUrl(
-      url,
-      { resultUrl ->
-        try {
-          val result = Arguments.createMap()
-          result.putString("url", resultUrl.url)
-          val sdkParamsMap = Arguments.createMap()
-          resultUrl.sdkParams?.forEach { (key, value) ->
-            sdkParamsMap.putString(key, value.toString())
-          }
-          result.putMap("sdkParams", sdkParamsMap)
-          promise.resolve(result)
-          Unit
-        } catch (e: Exception) {
-          promise.reject("DL_PARSE_ERROR", e)
-          Unit
-        }
-      },
-      { error ->
-        promise.reject("RESOLVE_DEEPLINK_FAILED", error)
-        Unit
-      }
+            url,
+            { resultUrl ->
+              try {
+                val result = Arguments.createMap()
+                result.putString("url", resultUrl.url)
+                val sdkParamsMap = Arguments.createMap()
+                resultUrl.sdkParams?.forEach { (key, value) ->
+                  sdkParamsMap.putString(key, value.toString())
+                }
+                result.putMap("sdkParams", sdkParamsMap)
+                promise.resolve(result)
+                Unit
+              } catch (e: Exception) {
+                promise.reject("DL_PARSE_ERROR", e)
+                Unit
+              }
+            },
+            { error ->
+              promise.reject("RESOLVE_DEEPLINK_FAILED", error)
+              Unit
+            }
     )
   }
 
   companion object {
-    const val NAME = "TrackierExpoSdk"
+    const val NAME = "AppTroveExpoSdk"
   }
 }

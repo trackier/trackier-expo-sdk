@@ -1,35 +1,46 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
-// const LINKING_ERROR =
-//   `The package 'trackier-expo-sdk' doesn't seem to be linked. Make sure: \n\n` +
-//   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-//   '- You rebuilt the app after installing the package\n' +
-//   '- You are not using Expo Go\n';
+const LINKING_ERROR =
+  `The package 'apptrove-expo-sdk' doesn't seem to be linked. Make sure: \n\n` +
+  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
+  '- You rebuilt the app after installing the package\n' +
+  '- You are not using Expo Go\n';
 
-// const TrackierExpoSdk = NativeModules.TrackierExpoSdk
-//   ? NativeModules.TrackierExpoSdk
-//   : new Proxy(
-//       {},
-//       {
-//         get() {
-//           throw new Error(LINKING_ERROR);
-//         },
-//       }
-//     );
+// Fail fast if native module is not available instead of silently masking errors
+const module_apptrove = NativeModules.AppTroveExpoSdk
+  ? NativeModules.AppTroveExpoSdk
+  : new Proxy(
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
+      },
+    }
+  );
 
-//var TrackierSDK = {};
+// Lazy-initialize NativeEventEmitter only when needed, not at module load time
+// This prevents accessing React Native modules before they're registered
+let module_apptrove_emitter: NativeEventEmitter | null = null;
 
-const module_trackier = NativeModules.TrackierExpoSdk;
-
-let module_trackier_emitter: NativeEventEmitter | null = null;
-
-if (Platform.OS === 'android') {
-	module_trackier_emitter = new NativeEventEmitter();
-} else if (Platform.OS === 'ios') {
-	module_trackier_emitter = new NativeEventEmitter(NativeModules.TrackierExpoSdk);
+function getEventEmitter(): NativeEventEmitter | null {
+  if (module_apptrove_emitter === null) {
+    try {
+      if (Platform.OS === 'android') {
+        module_apptrove_emitter = new NativeEventEmitter();
+      } else if (Platform.OS === 'ios' && NativeModules.AppTroveExpoSdk) {
+        module_apptrove_emitter = new NativeEventEmitter(NativeModules.AppTroveExpoSdk);
+      }
+    } catch (e) {
+      // Silently fail if NativeEventEmitter can't be created
+      // This can happen if React Native modules aren't fully initialized yet
+      console.warn('Failed to create NativeEventEmitter:', e);
+      return null;
+    }
+  }
+  return module_apptrove_emitter;
 }
 
- class TrackierConfig {
+class AppTroveConfig {
   appToken: string;
   environment: string;
   secretId: string = '';
@@ -38,7 +49,7 @@ if (Platform.OS === 'android') {
   disableOrganicTrack: boolean = false;
   hasDeferredDeeplinkCallback?: boolean;
   attributionParams: Record<string, string> = {};
-  region: string = ''; 
+  region: string = '';
   facebookAppId: string = ''; // Default Facebook App ID
   androidId: string = ''; // Default Android ID
   appId: string = ''; // Default App ID
@@ -48,77 +59,78 @@ if (Platform.OS === 'android') {
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
   static EnvironmentTesting: string = "testing";
-  static IN: string = "in"; 
+  static IN: string = "in";
   static GLOBAL: string = "global";
-  
+
   static EncryptionType = {
     AES_GCM: "AES_GCM"
-  }; 
+  };
 
   constructor(appToken: string, environment: string) {
-	  this.appToken = appToken;
-	  this.environment = environment;
+    this.appToken = appToken;
+    this.environment = environment;
   }
 
   setAppSecret(key: string, value: string): void {
-	  this.secretId = key;
-	  this.secretKey = value;
+    this.secretId = key;
+    this.secretKey = value;
   }
 
   setManualMode(value: boolean): void {
-	  this.manualMode = value;
+    this.manualMode = value;
   }
 
   disableOrganicTracking(value: boolean): void {
-	  this.disableOrganicTrack = value;
+    this.disableOrganicTrack = value;
   }
 
   setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (url: string) => void): void {
-	  if (Platform.OS === "android" || Platform.OS === "ios") {
-		if (module_trackier_emitter !== null) {
-		  this.hasDeferredDeeplinkCallback = true;
-		  module_trackier_emitter.addListener('trackier_deferredDeeplink', deferredDeeplinkCallbackListener);
-	  }
-	}
+    if (Platform.OS === "android" || Platform.OS === "ios") {
+      const emitter = getEventEmitter();
+      if (emitter !== null) {
+        this.hasDeferredDeeplinkCallback = true;
+        emitter.addListener('apptrove_deferredDeeplink', deferredDeeplinkCallbackListener);
+      }
+    }
   }
 
-  setAttributionParams(params: Record<string, string>): void { 
-        if (typeof params !== 'object' || params === null) {
-            console.error('Invalid parameters passed to setAttributionParams');
-            return;
-        }
-        this.attributionParams = params;
+  setAttributionParams(params: Record<string, string>): void {
+    if (typeof params !== 'object' || params === null) {
+      console.error('Invalid parameters passed to setAttributionParams');
+      return;
     }
+    this.attributionParams = params;
+  }
 
-  setRegion(value: string): void { 
+  setRegion(value: string): void {
     this.region = value;
   }
 
-  setFacebookAppId(value: string): void { 
+  setFacebookAppId(value: string): void {
     this.facebookAppId = value;
   }
 
-  setAndroidId(value: string): void { 
+  setAndroidId(value: string): void {
     this.androidId = value;
   }
 
-  setAppId(value: string): void { 
+  setAppId(value: string): void {
     this.appId = value;
   }
 
-  setEncryptionKey(value: string): void { 
+  setEncryptionKey(value: string): void {
     this.encryptionKey = value;
   }
 
-  setEncryptionType(value: string): void { 
+  setEncryptionType(value: string): void {
     this.encryptionType = value;
   }
 }
 
- interface TrackierSDKProps {
-  initialize(trackierConfig: TrackierConfig): void;
+interface AppTroveSDKProps {
+  initialize(config: AppTroveConfig): void;
   setEnabled(value: boolean): void;
-  getTrackierId(): Promise<string>;
+  getAppTroveId(): Promise<string>;
   setUserId(userId: string): void;
   setUserEmail(userEmail: string): void;
   setUserName(userName: string): void;
@@ -127,203 +139,203 @@ if (Platform.OS === 'android') {
   setLocalRefTrack(value: string, delimiter: string): void;
   setUserAdditionalDetails(userAdditionalMap: Record<string, any>): void;
   waitForATTUserAuthorization(timeoutInterval: number): void;
-  updateAppleAdsToken(token: string):void;
+  updateAppleAdsToken(token: string): void;
   updatePostbackConversion(conversionValue: number): void;
   subscribeDeeplink(): void;
   fireInstall(): void;
   parseDeepLink(value: string): void;
   setIMEI(imei1: string, imei2: string): void;
   setMacAddress(value: string): void;
-  getAd(): string;
-  getAdID(): string;
-  getAdSet(): string;
-  getCampaign(): string;
-  getCampaignID(): string;
-  getChannel(): string;
-  getP1(): string;
-  getP2(): string;
-  getP3(): string;
-  getP4(): string;
-  getP5(): string;
-  getClickId(): string;
-  getDlv(): string;
-  getPid(): string;
-  getIsRetargeting(): boolean;
-  trackEvent(trackierEvent: TrackierEvent): void;
+  getAd(): Promise<string>;
+  getAdID(): Promise<string>;
+  getAdSet(): Promise<string>;
+  getCampaign(): Promise<string>;
+  getCampaignID(): Promise<string>;
+  getChannel(): Promise<string>;
+  getP1(): Promise<string>;
+  getP2(): Promise<string>;
+  getP3(): Promise<string>;
+  getP4(): Promise<string>;
+  getP5(): Promise<string>;
+  getClickId(): Promise<string>;
+  getDlv(): Promise<string>;
+  getPid(): Promise<string>;
+  getIsRetargeting(): Promise<boolean>;
+  trackEvent(event: AppTroveEvent): void;
   createDynamicLink(config: Record<string, any>): Promise<string>;
   resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
 }
 
- let TrackierSDK: TrackierSDKProps = {
-  initialize: function (trackierConfig: TrackierConfig) {
-	  module_trackier.initializeSDK(trackierConfig);
+let AppTroveSDK: AppTroveSDKProps = {
+  initialize: function (config: AppTroveConfig) {
+    module_apptrove.initializeSDK(config);
   },
 
   setEnabled: function (value: boolean) {
-	  module_trackier.setEnabled(value);
+    module_apptrove.setEnabled(value);
   },
 
-  getTrackierId: async function () {
-	  const id = await module_trackier.getTrackierId();
-	  return id;
+  getAppTroveId: async function () {
+    const id = await module_apptrove.getAppTroveId();
+    return id;
   },
 
   setUserId: function (userId: string) {
-	  module_trackier.setUserId(userId);
+    module_apptrove.setUserId(userId);
   },
 
   setUserEmail: function (userEmail: string) {
-	  module_trackier.setUserEmail(userEmail);
+    module_apptrove.setUserEmail(userEmail);
   },
 
   setUserName: function (userName: string) {
-	  module_trackier.setUserName(userName);
+    module_apptrove.setUserName(userName);
   },
 
   setUserPhone: function (userPhone: string) {
-	  module_trackier.setUserPhone(userPhone);
+    module_apptrove.setUserPhone(userPhone);
   },
 
   trackAsOrganic: function (value: boolean) {
-	  module_trackier.trackAsOrganic(value);
+    module_apptrove.trackAsOrganic(value);
   },
 
   setLocalRefTrack: function (value: string, delimiter: string) {
-	  module_trackier.setLocalRefTrack(value, delimiter);
+    module_apptrove.setLocalRefTrack(value, delimiter);
   },
 
   setUserAdditionalDetails: function (userAdditionalMap: Record<string, any>) {
-	  if (Platform.OS === 'android') {
-		module_trackier.setUserAdditionalDetails({userAdditionalMap});
-	  } else if (Platform.OS === 'ios') {
-		module_trackier.setUserAdditionalDetails(userAdditionalMap);
-	  }
+    if (Platform.OS === 'android') {
+      module_apptrove.setUserAdditionalDetails({ userAdditionalMap });
+    } else if (Platform.OS === 'ios') {
+      module_apptrove.setUserAdditionalDetails(userAdditionalMap);
+    }
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
-	  module_trackier.waitForATTUserAuthorization(timeoutInterval);
+    module_apptrove.waitForATTUserAuthorization(timeoutInterval);
   },
 
   updateAppleAdsToken: function (token: string) {
-    module_trackier.updateAppleAdsToken(token);
+    module_apptrove.updateAppleAdsToken(token);
   },
 
   updatePostbackConversion: function (conversionValue: number) {
-    module_trackier.updatePostbackConversion(conversionValue);
+    module_apptrove.updatePostbackConversion(conversionValue);
   },
 
   subscribeDeeplink: function () {
-    module_trackier.subscribeDeeplink();
+    module_apptrove.subscribeDeeplink();
   },
 
   fireInstall: function () {
-	  module_trackier.fireInstall();
+    module_apptrove.fireInstall();
   },
 
   parseDeepLink: function (value: string) {
-	  module_trackier.parseDeepLink(value);
+    module_apptrove.parseDeepLink(value);
   },
 
   setIMEI: function (imei1: string, imei2: string) {
-	  module_trackier.setIMEI(imei1, imei2);
+    module_apptrove.setIMEI(imei1, imei2);
   },
 
   setMacAddress: function (value: string) {
-	  module_trackier.setMacAddress(value);
+    module_apptrove.setMacAddress(value);
   },
 
-  getAd: function () {
-	  return module_trackier.getAd();
+  getAd: async function () {
+    return await module_apptrove.getAd();
   },
 
-  getAdID: function () {
-	  return module_trackier.getAdID();
+  getAdID: async function () {
+    return await module_apptrove.getAdID();
   },
 
-  getAdSet: function () {
-	  return module_trackier.getAdSet();
+  getAdSet: async function () {
+    return await module_apptrove.getAdSet();
   },
 
-  getCampaign: function () {
-	  return module_trackier.getCampaign();
+  getCampaign: async function () {
+    return await module_apptrove.getCampaign();
   },
 
-  getCampaignID: function () {
-	  return module_trackier.getCampaignID();
+  getCampaignID: async function () {
+    return await module_apptrove.getCampaignID();
   },
 
-  getChannel: function () {
-	  return module_trackier.getChannel();
+  getChannel: async function () {
+    return await module_apptrove.getChannel();
   },
 
-  getP1: function () {
-	  return module_trackier.getP1();
+  getP1: async function () {
+    return await module_apptrove.getP1();
   },
 
-  getP2: function () {
-	  return module_trackier.getP2();
+  getP2: async function () {
+    return await module_apptrove.getP2();
   },
 
-  getP3: function () {
-	  return module_trackier.getP3();
+  getP3: async function () {
+    return await module_apptrove.getP3();
   },
 
-  getP4: function () {
-	  return module_trackier.getP4();
+  getP4: async function () {
+    return await module_apptrove.getP4();
   },
 
-  getP5: function () {
-	  return module_trackier.getP5();
+  getP5: async function () {
+    return await module_apptrove.getP5();
   },
 
-  getClickId: function () {
-	  return module_trackier.getClickId();
+  getClickId: async function () {
+    return await module_apptrove.getClickId();
   },
 
-  getDlv: function () {
-	  return module_trackier.getDlv();
+  getDlv: async function () {
+    return await module_apptrove.getDlv();
   },
 
-  getPid: function () {
-	  return module_trackier.getPid();
+  getPid: async function () {
+    return await module_apptrove.getPid();
   },
 
-  getIsRetargeting: function () {
-	  return module_trackier.getIsRetargeting();
+  getIsRetargeting: async function () {
+    return await module_apptrove.getIsRetargeting();
   },
 
-  trackEvent: function (trackierEvent: TrackierEvent) {
-	let isValidArgs = true;
-	const props = ['eventId', 'orderId', 'currency', 'couponCode', 'param1', 'param2', 'param3', 'param4', 'param5', 'param6', 'param7', 'param8', 'param9', 'param10'];
+  trackEvent: function (apptroveEvent: AppTroveEvent) {
+    let isValidArgs = true;
+    const props = ['eventId', 'orderId', 'currency', 'couponCode', 'param1', 'param2', 'param3', 'param4', 'param5', 'param6', 'param7', 'param8', 'param9', 'param10'];
 
-	props.forEach((v) => {
-		const value = (trackierEvent as any)[v];
-		if (value === null || value === undefined) {
-			return;
-		}
-		if (typeof value !== 'string') {
-			isValidArgs = false;
-			return;
-		}
-	});
+    props.forEach((v) => {
+      const value = (apptroveEvent as any)[v];
+      if (value === null || value === undefined) {
+        return;
+      }
+      if (typeof value !== 'string') {
+        isValidArgs = false;
+        return;
+      }
+    });
 
-	if (!isValidArgs || (typeof trackierEvent.revenue !== 'undefined' && typeof trackierEvent.revenue !== 'number')) {
-		return;
-	}
+    if (!isValidArgs || (typeof apptroveEvent.revenue !== 'undefined' && typeof apptroveEvent.revenue !== 'number')) {
+      return;
+    }
 
-	module_trackier.trackEvent(trackierEvent);
+    module_apptrove.trackEvent(apptroveEvent);
   },
 
   createDynamicLink: async function (config: Record<string, any>): Promise<string> {
-    return await module_trackier.createDynamicLink(config);
+    return await module_apptrove.createDynamicLink(config);
   },
 
   resolveDeeplinkUrl: async function (url: string): Promise<Record<string, any>> {
-    return await module_trackier.resolveDeeplinkUrl(url);
+    return await module_apptrove.resolveDeeplinkUrl(url);
   }
 };
 
- class TrackierEvent {
+class AppTroveEvent {
   eventId: string;
   orderId: string | null = null;
   currency: string | null = null;
@@ -347,7 +359,7 @@ if (Platform.OS === 'android') {
   static ADD_TO_CART: string = "Fy4uC1_FlN";
   static ADD_TO_WISHLIST: string = "AOisVC76YG";
   static COMPLETE_REGISTRATION: string = "mEqP4aD8dU";
-  static TUTORIAL_COMPLETION : string= "99VEGvXjN7";
+  static TUTORIAL_COMPLETION: string = "99VEGvXjN7";
   static PURCHASE: string = "Q4YsqBKnzZ";
   static SUBSCRIBE: string = "B4N_In4cIP";
   static START_TRIAL: string = "jYHcuyxWUW";
@@ -360,24 +372,24 @@ if (Platform.OS === 'android') {
   static UPDATE: string = "sEQWVHGThl";
 
   constructor(eventId: string) {
-	  this.eventId = eventId;
+    this.eventId = eventId;
   }
 
   setEventValue(key: string, value: any): void {
-	  if (typeof key !== 'string') {
-		  return;
-	  }
-	  this.ev[key] = value;
+    if (typeof key !== 'string') {
+      return;
+    }
+    this.ev[key] = value;
   }
 
 }
 
-// TrackierSDK.initialize = function(trackierConfig: TrackierConfig): void {
-//   module_trackier.initializeSDK(trackierConfig);
+// AppTroveSDK.initialize = function(config: AppTroveConfig): void {
+//   module_apptrove.initializeSDK(config);
 // };
 
 module.exports = {
-	TrackierConfig,
-	TrackierSDK, 
-	TrackierEvent
+  AppTroveConfig,
+  AppTroveSDK,
+  AppTroveEvent
 }
