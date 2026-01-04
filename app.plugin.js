@@ -17,29 +17,29 @@ function withTrackierAndroid(config) {
   });
 }
 
-function withTrackierIOS(config) {
-  return withDangerousMod(config, [
-    'ios',
-    async (config) => {
-      const podfilePath = path.join(
-        config.modRequest.platformProjectRoot,
-        'Podfile'
-      );
+// function withTrackierIOS(config) {
+//   return withDangerousMod(config, [
+//     'ios',
+//     async (config) => {
+//       const podfilePath = path.join(
+//         config.modRequest.platformProjectRoot,
+//         'Podfile'
+//       );
 
-      let podfile = fs.readFileSync(podfilePath, 'utf-8');
+//       let podfile = fs.readFileSync(podfilePath, 'utf-8');
 
-      if (!podfile.includes("pod 'TrackierSDK'")) {
-        podfile += `\npod 'TrackierSDK'\n`;
-        fs.writeFileSync(podfilePath, podfile);
-      }
+//       if (!podfile.includes("pod 'TrackierSDK'")) {
+//         podfile += `\npod 'TrackierSDK'\n`;
+//         fs.writeFileSync(podfilePath, podfile);
+//       }
 
-      return config;
-    },
-  ]);
-}
+//       return config;
+//     },
+//   ]);
+// }
 
 module.exports = function withTrackier(config) {
   config = withTrackierAndroid(config);
-  config = withTrackierIOS(config);
+  //config = withTrackierIOS(config);
   return config;
 };
