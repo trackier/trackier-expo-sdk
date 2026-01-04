@@ -1,10 +1,13 @@
 {
   "name": "trackier-expo-sdk",
-  "version": "1.6.77",
+  "version": "1.6.78",
   "description": "this is trackier expo and react-nattive package",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
+  "expo": {
+    "plugin": "./app.plugin.js"
+  },
   "exports": {
     ".": {
       "import": {
@@ -23,6 +26,7 @@
     "android",
     "ios",
     "cpp",
+    "app.plugin.js",
     "*.podspec",
     "!ios/build",
     "!android/build",
