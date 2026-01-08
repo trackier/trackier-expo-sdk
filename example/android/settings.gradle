@@ -1,6 +1,9 @@
 pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
 plugins { id("com.facebook.react.settings") }
 extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
-rootProject.name = 'trackierexposdk.example'
+rootProject.name = 'apptroveexposdk.example'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+include ':apptrove-expo-sdk'
+project(':apptrove-expo-sdk').projectDir = new File('../../android')

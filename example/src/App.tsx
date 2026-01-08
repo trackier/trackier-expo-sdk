@@ -10,148 +10,148 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [dynamicLinkResult, setDynamicLinkResult] = useState<string>('');
   const [resolveResult, setResolveResult] = useState<string>('');
-  const [trackierId, setTrackierId] = useState<string>('');
+  const [apptroveId, setApptroveId] = useState<string>('');
   const [deepLinkUrl, setDeepLinkUrl] = useState<string>(
-    'https://trackier58.u9ilnk.me/d/nJhl3K1iC5'
+    'https://trackier58.u9ilnk.me/d/VgnGGvylDO'
   );
   const [dynamicLinkConfig, setDynamicLinkConfig] = useState({
-    templateId: 'G3Og1t',
+    templateId: 'ODLVoS',
     link: 'https://your-domain.com',
     domainUriPrefix: 'https://your-domain.com',
     deepLinkValue: 'https://your-app.com/deep-link',
   });
 
   useEffect(() => {
-    initializeTrackierSDK();
-    getTrackierId();
+    initializeAppTroveSDK();
+    getAppTroveId();
   }, []);
 
-  const initializeTrackierSDK = () => {
+  const initializeAppTroveSDK = () => {
     try {
-      const trackierConfig = new TrackierConfig(
-        "be82576a-b4e8-40a7-8fe2-c25d924ddc58", 
-        TrackierConfig.EnvironmentDevelopment
+      const appTroveConfig = new AppTroveConfig(
+        'XXXXXX-XXXXX-XXXXX-XXXXX-XXXXX', // Replace with your actual AppToken
+        AppTroveConfig.EnvironmentDevelopment
       );
 
       // Set app secret
-      trackierConfig.setAppSecret("680b4f0038e509a7bbaf5a63", "91fc78c1-aedb-4895-81c8-073cae188708");
+      // appTroveConfig.setAppSecret("680b4f0038e509a7bbaf5a63", "91fc78c1-aedb-4895-81c8-073cae188708");
 
       // Set region (NEW FEATURE)
-      trackierConfig.setRegion(TrackierConfig.IN); // or TrackierConfig.GLOBAL
+      appTroveConfig.setRegion(AppTroveConfig.IN); // or AppTroveConfig.GLOBAL
 
       // Set Facebook App ID for Meta attribution (Android)
-      trackierConfig.setFacebookAppId("123456789012345"); // Replace with your actual Facebook App ID
+      appTroveConfig.setFacebookAppId('123456789012345'); // Replace with your actual Facebook App ID
 
       // Set custom Android ID for device identification (Android)
-      trackierConfig.setAndroidId("custom_android_device_id_123"); // Replace with your custom Android ID
+      appTroveConfig.setAndroidId('custom_android_device_id_123'); // Replace with your custom Android ID
 
       // Set App ID
-      trackierConfig.setAppId("802830299"); // Replace with your actual App ID
+      appTroveConfig.setAppId('802830299'); // Replace with your actual App ID
 
-      // Set encryption key for secure data transmission 
-      trackierConfig.setEncryptionKey("xxxEncryTest29393"); // Replace with your encryption key
+      // Set encryption key for secure data transmission
+      // appTroveConfig.setEncryptionKey("xxxEncryTest29393"); // Replace with your encryption key
 
-      // Set encryption type 
-      trackierConfig.setEncryptionType(TrackierConfig.EncryptionType.AES_GCM); // Use AES_GCM encryption
+      // Set encryption type
+      // appTroveConfig.setEncryptionType(AppTroveConfig.EncryptionType.AES_GCM); // Use AES_GCM encryption
 
       // Set attribution parameters (NEW FEATURE)
-      trackierConfig.setAttributionParams({
-        ad: "test_ad",
-        partnerId: "test_partner",
-        channel: "test_channel",
-        adId: "test_ad_id",
-        siteId: "test_site_id"
+      appTroveConfig.setAttributionParams({
+        ad: 'test_ad',
+        partnerId: 'test_partner',
+        channel: 'test_channel',
+        adId: 'test_ad_id',
+        siteId: 'test_site_id',
       });
 
       // Set deferred deep link callback
-      trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
-        Alert.alert("Deep Link Received", `URL: ${uri}`);
-        console.log("Deferred Deeplink Callback received:", uri);
+      appTroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+        Alert.alert('Deep Link Received', `URL: ${uri}`);
+        console.log('Deferred Deeplink Callback received:', uri);
       });
 
-      TrackierSDK.initialize(trackierConfig);
-      console.log("Trackier SDK initialized successfully");
+      AppTroveSDK.initialize(appTroveConfig);
+      console.log('AppTrove SDK initialized successfully');
     } catch (error) {
-      console.error("Error initializing Trackier SDK:", error);
-      Alert.alert("Error", "Failed to initialize Trackier SDK");
+      console.error('Error initializing AppTrove SDK:', error);
+      Alert.alert('Error', 'Failed to initialize AppTrove SDK');
     }
   };
 
-  const getTrackierId = async () => {
+  const getAppTroveId = async () => {
     try {
-      const id = await TrackierSDK.getTrackierId();
-      setTrackierId(id);
+      const id = await AppTroveSDK.getAppTroveId();
+      setApptroveId(id);
     } catch (error) {
-      console.error("Error getting Trackier ID:", error);
+      console.error('Error getting AppTrove ID:', error);
     }
   };
 
   const trackSimpleEvent = () => {
     try {
-      const trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
-      trackierEvent.param1 = "Product123";
-      trackierEvent.param2 = "Category456";
-      trackierEvent.couponCode = "SAVE20";
-      trackierEvent.discount = 2.0;
-      
+      const appTroveEvent = new AppTroveEvent(AppTroveEvent.ADD_TO_CART);
+      appTroveEvent.param1 = 'Product123';
+      appTroveEvent.param2 = 'Category456';
+      appTroveEvent.couponCode = 'SAVE20';
+      appTroveEvent.discount = 2.0;
+
       // Set user information
-      TrackierSDK.setUserName('John Doe');
-      TrackierSDK.setUserPhone("+1234567890");
-      TrackierSDK.setUserId("user123");
+      AppTroveSDK.setUserName('John Doe');
+      AppTroveSDK.setUserPhone('+1234567890');
+      AppTroveSDK.setUserId('user123');
 
       // Set custom event data
-      trackierEvent.ev = { 
-        "product_name": "Test Product", 
-        "category": "Electronics" 
+      appTroveEvent.ev = {
+        product_name: 'Test Product',
+        category: 'Electronics',
       };
 
-      TrackierSDK.trackEvent(trackierEvent);
-      Alert.alert("Success", "Simple event tracked successfully!");
+      AppTroveSDK.trackEvent(appTroveEvent);
+      Alert.alert('Success', 'Simple event tracked successfully!');
     } catch (error) {
-      console.error("Error tracking simple event:", error);
-      Alert.alert("Error", "Failed to track simple event");
+      console.error('Error tracking simple event:', error);
+      Alert.alert('Error', 'Failed to track simple event');
     }
   };
 
   const trackRevenueEvent = () => {
     try {
-      const trackierEvent = new TrackierEvent(TrackierEvent.PURCHASE);
-      trackierEvent.param1 = "Product789";
-      trackierEvent.param2 = "Premium";
-      trackierEvent.couponCode = "PREMIUM10";
-      trackierEvent.revenue = 29.99;
-      trackierEvent.currency = "USD";
-      trackierEvent.discount = 5.0;
+      const appTroveEvent = new AppTroveEvent(AppTroveEvent.PURCHASE);
+      appTroveEvent.param1 = 'Product789';
+      appTroveEvent.param2 = 'Premium';
+      appTroveEvent.couponCode = 'PREMIUM10';
+      appTroveEvent.revenue = 29.99;
+      appTroveEvent.currency = 'USD';
+      appTroveEvent.discount = 5.0;
 
       // Set user information
-      TrackierSDK.setUserEmail("user@example.com");
-      TrackierSDK.setUserName("Jane Smith");
-      TrackierSDK.setUserPhone("+1987654321");
-      TrackierSDK.setUserId("user456");
-      TrackierSDK.setUserAdditionalDetails({
-      clevertap_uid: "user123",
-      user_type: "premium",
-      subscription_status: "active",
-      last_login: "2024-01-15"
+      AppTroveSDK.setUserEmail('user@example.com');
+      AppTroveSDK.setUserName('Jane Smith');
+      AppTroveSDK.setUserPhone('+1987654321');
+      AppTroveSDK.setUserId('user456');
+      AppTroveSDK.setUserAdditionalDetails({
+        clevertap_uid: 'user123',
+        user_type: 'premium',
+        subscription_status: 'active',
+        last_login: '2024-01-15',
       });
-      TrackierSDK.trackEvent(trackierEvent);
-      Alert.alert("Success", "Revenue event tracked successfully!");
+      AppTroveSDK.trackEvent(appTroveEvent);
+      Alert.alert('Success', 'Revenue event tracked successfully!');
     } catch (error) {
-      console.error("Error tracking revenue event:", error);
-      Alert.alert("Error", "Failed to track revenue event");
+      console.error('Error tracking revenue event:', error);
+      Alert.alert('Error', 'Failed to track revenue event');
     }
   };
 
   const createDynamicLink = async () => {
     setIsLoading(true);
     setDynamicLinkResult('');
-    
+
     try {
       const config = {
         templateId: dynamicLinkConfig.templateId,
@@ -159,39 +159,40 @@ export default function App() {
         domainUriPrefix: dynamicLinkConfig.domainUriPrefix,
         deepLinkValue: dynamicLinkConfig.deepLinkValue,
         androidParameters: {
-          redirectLink: "https://play.google.com/store/apps/details?id=com.example.app"
+          redirectLink:
+            'https://play.google.com/store/apps/details?id=com.example.app',
         },
         iosParameters: {
-          redirectLink: "https://apps.apple.com/app/id123456789"
+          redirectLink: 'https://apps.apple.com/app/id123456789',
         },
         socialMetaTagParameters: {
-          title: "Amazing App",
-          description: "Check out this amazing app!",
-          imageLink: "https://example.com/image.jpg"
+          title: 'Amazing App',
+          description: 'Check out this amazing app!',
+          imageLink: 'https://example.com/image.jpg',
         },
         sdkParameters: {
-          param1: "value1",
-          param2: "value2"
+          param1: 'value1',
+          param2: 'value2',
         },
         attributionParameters: {
-          channel: "social",
-          campaign: "summer_sale",
-          mediaSource: "facebook",
-          p1: "custom_param1",
-          p2: "custom_param2",
-          p3: "custom_param3",
-          p4: "custom_param4",
-          p5: "custom_param5"
-        }
+          channel: 'social',
+          campaign: 'summer_sale',
+          mediaSource: 'facebook',
+          p1: 'custom_param1',
+          p2: 'custom_param2',
+          p3: 'custom_param3',
+          p4: 'custom_param4',
+          p5: 'custom_param5',
+        },
       };
 
-      const result = await TrackierSDK.createDynamicLink(config);
+      const result = await AppTroveSDK.createDynamicLink(config);
       setDynamicLinkResult(result);
-      Alert.alert("Success", "Dynamic link created successfully!");
+      Alert.alert('Success', 'Dynamic link created successfully!');
     } catch (error) {
-      console.error("Error creating dynamic link:", error);
+      console.error('Error creating dynamic link:', error);
       setDynamicLinkResult(`Error: ${error}`);
-      Alert.alert("Error", "Failed to create dynamic link");
+      Alert.alert('Error', 'Failed to create dynamic link');
     } finally {
       setIsLoading(false);
     }
@@ -199,22 +200,22 @@ export default function App() {
 
   const resolveDeeplinkUrl = async () => {
     if (!deepLinkUrl.trim()) {
-      Alert.alert("Error", "Please enter a deep link URL");
+      Alert.alert('Error', 'Please enter a deep link URL');
       return;
     }
 
     setIsLoading(true);
     setResolveResult('');
-    
+
     try {
-      const result = await TrackierSDK.resolveDeeplinkUrl(deepLinkUrl);
+      const result = await AppTroveSDK.resolveDeeplinkUrl(deepLinkUrl);
       const resultText = `URL: ${result.url}\nSDK Params: ${JSON.stringify(result.sdkParams, null, 2)}`;
       setResolveResult(resultText);
-      Alert.alert("Success", "Deep link resolved successfully!");
+      Alert.alert('Success', 'Deep link resolved successfully!');
     } catch (error) {
-      console.error("Error resolving deep link:", error);
+      console.error('Error resolving deep link:', error);
       setResolveResult(`Error: ${error}`);
-      Alert.alert("Error", "Failed to resolve deep link");
+      Alert.alert('Error', 'Failed to resolve deep link');
     } finally {
       setIsLoading(false);
     }
@@ -222,40 +223,40 @@ export default function App() {
 
   const parseDeepLink = () => {
     try {
-      TrackierSDK.parseDeepLink(deepLinkUrl);
-      Alert.alert("Success", "Deep link parsed successfully!");
+      AppTroveSDK.parseDeepLink(deepLinkUrl);
+      Alert.alert('Success', 'Deep link parsed successfully!');
     } catch (error) {
-      console.error("Error parsing deep link:", error);
-      Alert.alert("Error", "Failed to parse deep link");
+      console.error('Error parsing deep link:', error);
+      Alert.alert('Error', 'Failed to parse deep link');
     }
   };
 
   const setUserAdditionalDetails = () => {
     try {
-      TrackierSDK.setUserAdditionalDetails({clevertap_uid: "sanuuu"});
-      Alert.alert("Success", "User additional details set successfully!");
+      AppTroveSDK.setUserAdditionalDetails({ clevertap_uid: 'sanuuu' });
+      Alert.alert('Success', 'User additional details set successfully!');
     } catch (error) {
-      console.error("Error setting user additional details:", error);
-      Alert.alert("Error", "Failed to set user additional details");
+      console.error('Error setting user additional details:', error);
+      Alert.alert('Error', 'Failed to set user additional details');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Trackier React-Native SDK</Text>
+        <Text style={styles.title}>AppTrove React-Native SDK</Text>
         <Text style={styles.subtitle}>Demo App - All Features</Text>
-        
-        {trackierId && (
+
+        {apptroveId && (
           <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>Trackier ID: {trackierId}</Text>
+            <Text style={styles.infoText}>AppTrove ID: {apptroveId}</Text>
           </View>
         )}
 
         {/* Event Tracking Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Event Tracking</Text>
-          
+
           <TouchableOpacity style={styles.button} onPress={trackSimpleEvent}>
             <Text style={styles.buttonText}>Track Simple Event</Text>
           </TouchableOpacity>
@@ -264,7 +265,10 @@ export default function App() {
             <Text style={styles.buttonText}>Track Revenue Event</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={setUserAdditionalDetails}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={setUserAdditionalDetails}
+          >
             <Text style={styles.buttonText}>Set User Additional Details</Text>
           </TouchableOpacity>
         </View>
@@ -272,37 +276,51 @@ export default function App() {
         {/* Dynamic Link Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dynamic Link Creation</Text>
-          
+
           <TextInput
             style={styles.input}
             placeholder="Template ID"
             value={dynamicLinkConfig.templateId}
-            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, templateId: text})}
+            onChangeText={(text) =>
+              setDynamicLinkConfig({ ...dynamicLinkConfig, templateId: text })
+            }
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Link"
             value={dynamicLinkConfig.link}
-            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, link: text})}
+            onChangeText={(text) =>
+              setDynamicLinkConfig({ ...dynamicLinkConfig, link: text })
+            }
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Domain URI Prefix"
             value={dynamicLinkConfig.domainUriPrefix}
-            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, domainUriPrefix: text})}
+            onChangeText={(text) =>
+              setDynamicLinkConfig({
+                ...dynamicLinkConfig,
+                domainUriPrefix: text,
+              })
+            }
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Deep Link Value"
             value={dynamicLinkConfig.deepLinkValue}
-            onChangeText={(text) => setDynamicLinkConfig({...dynamicLinkConfig, deepLinkValue: text})}
+            onChangeText={(text) =>
+              setDynamicLinkConfig({
+                ...dynamicLinkConfig,
+                deepLinkValue: text,
+              })
+            }
           />
 
-          <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+          <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={createDynamicLink}
             disabled={isLoading}
           >
@@ -324,7 +342,7 @@ export default function App() {
         {/* Deep Link Resolution Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Deep Link Resolution</Text>
-          
+
           <TextInput
             style={styles.input}
             placeholder="Enter deep link URL"
@@ -332,8 +350,8 @@ export default function App() {
             onChangeText={setDeepLinkUrl}
           />
 
-          <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+          <TouchableOpacity
+            style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={resolveDeeplinkUrl}
             disabled={isLoading}
           >

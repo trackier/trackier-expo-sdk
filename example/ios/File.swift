@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  TrackierExpoSdkExample
+//  AppTroveExpoSdkExample
 //
 
 import Foundation

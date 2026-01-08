@@ -1,11 +1,13 @@
 
-# trackier-expo-sdk
+# apptrove-expo-sdk
 
-this is trackier expo and react-nattive package
+this is apptrove expo and react-native package
 
 ## Table of Contents
 
 * [Quick Integration Guide](#qs-basic-integration)
+    * [Installation](#qs-basic-integration)
+    * [Dependencies](#dependencies)
     * [Retrieve your app token](#qs-retrieve-app-token)
     * [Getting Google Advertising ID](#qs-getting-gaid)
     * [Initialize the SDK](#qs-initialize-sdk)
@@ -20,48 +22,133 @@ this is trackier expo and react-nattive package
 * [Proguard Settings](#qs-progaurd-settings)
 
 
-## <a id="qs-add-trackier-sdk"></a>Quick Integration Guide
+## <a id="qs-add-apptrove-sdk"></a>Quick Integration Guide
 
-We have created a example app for the react-native SDK integration. 
+We have created an example app for the react-native SDK integration. 
 
-Please check the [Example](https://github.com/trackier/react-native-sdk/tree/main/example) directory for know to how the `Trackier SDK` can be integrated.
+Please check the [Example](https://github.com/ApptroveLabs/trackier-expo-sdk/tree/main/example) directory to know how the `AppTrove SDK` can be integrated.
 
 
 ## <a id="qs-basic-integration"></a>Integrate React-Native SDK to your app
 
-For integration, you need to import the trackier library in your project. 
+For integration, you need to import the apptrove library in your project. 
 
 For importing the library in project, you need to run the below command in the `terminal/cmd`.
 
 For Npm
 ```sh
-$ npm i trackier-expo-sdk
+$ npm i apptrove-expo-sdk
 ```
 For Yarn
 ```sh
-$ yarn add trackier-expo-sdk
+$ yarn add apptrove-expo-sdk
 ```
 
-For Ios app, make sure to go to ios folder and install Cocoapods dependencies:
+For iOS app, make sure to go to ios folder and install CocoaPods dependencies:
 
 ```sh
 $ cd ios && pod install
-```    
+```
 
-## <a id="qs-getting-gaid"></a> Getting Google Advertising ID
+### Expo Config Plugin
 
-Trackier SDK need the advertising id from the application. 
+If you're using Expo, the SDK includes a config plugin that automatically configures your project. Add the plugin to your `app.json` or `app.config.js`:
 
-For achieving this, you need to add some line of code in the build.gradle and also in Manifest.xml for read the Advertising id from the application which is mentioned below
+```json
+{
+  "plugins": [
+    "apptrove-expo-sdk"
+  ]
+}
+```
 
-- Add the google advertising id dependency in your app **build.gradle**
+The plugin will automatically:
+- Add the required Android dependency (`com.google.android.gms:play-services-ads-identifier:18.0.1`)
+- Add the iOS pod (`apptrove-ios-sdk`) to your Podfile
+
+After adding the plugin, run:
+```sh
+$ npx expo prebuild
+```
+
+### Dependencies
+
+The AppTrove Expo SDK requires the following dependencies:
+
+#### Peer Dependencies
+- `react`: `*` (any version)
+- `react-native`: `*` (any version)
+
+These are automatically installed when you install `apptrove-expo-sdk`.
+
+#### Android Dependencies
+
+The following dependencies are required for Android and will be automatically added by the Expo config plugin, or you can add them manually:
 
 ```gradle
 dependencies {
-  // This can be added where the SDK dependency has been added
+  // AppTrove Android SDK (required)
+  implementation 'com.apptrove:android-sdk:2.0.0'
+  
+  // Google Play Services for Advertising ID (required)
   implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+  
+  // Install Referrer Library (required)
+  implementation 'com.android.installreferrer:installreferrer:2.2'
 }
 ```
+
+**Note:** The AppTrove Android SDK (`com.apptrove:android-sdk:2.0.0`) is available on [Maven Central](https://mvnrepository.com/artifact/com.apptrove/android-sdk).
+
+#### iOS Dependencies
+
+The following CocoaPod is required for iOS and will be automatically added by the Expo config plugin, or you can add it manually to your `Podfile`:
+
+```ruby
+pod 'apptrove-ios-sdk'
+```
+
+After adding the pod, run:
+```sh
+$ cd ios && pod install
+```
+
+**Note:** The AppTrove iOS SDK (`apptrove-ios-sdk`) is available on CocoaPods.
+
+#### Expo Config Plugin Dependency
+
+If you're using the Expo config plugin, ensure you have `@expo/config-plugins` installed (it's included as a devDependency in this package, but you may need it in your Expo project):
+
+```sh
+$ npm install @expo/config-plugins
+# or
+$ yarn add @expo/config-plugins
+```
+
+## <a id="qs-getting-gaid"></a> Getting Google Advertising ID
+
+AppTrove SDK need the advertising id from the application. 
+
+For achieving this, you need to add some line of code in the build.gradle and also in Manifest.xml for read the Advertising id from the application which is mentioned below
+
+- Add the required dependencies in your app **build.gradle**
+
+```gradle
+dependencies {
+  // AppTrove Android SDK (required)
+  implementation 'com.apptrove:android-sdk:2.0.0'
+  
+  // Google Play Services for Advertising ID (required)
+  implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+  
+  // Install Referrer Library (required)
+  implementation 'com.android.installreferrer:installreferrer:2.2'
+}
+```
+
+**Note:** 
+- If you're using the Expo config plugin, the `play-services-ads-identifier` dependency will be added automatically. You still need to manually add the AppTrove Android SDK (`com.apptrove:android-sdk:2.0.0`) and install referrer dependencies.
+- The AppTrove Android SDK is available on [Maven Central](https://mvnrepository.com/artifact/com.apptrove/android-sdk).
 
 Also update the gradle.properties file by adding this lines in case the gradle version is lower than 7.0
 
@@ -89,7 +176,7 @@ Screenshot[1]
 
 ### <a id="qs-retrieve-app-token"></a>Retrieve your app token
 
-1. Login to your Trackier MMP account.
+1. Login to your AppTrove MMP account.
 2. Select the application from dashboard which you want to get the app token for.
 3. Go to SDK Integration via the left side navigation menu.
 4. Copy the SDK Key there to be used as the `"app_token"`.
@@ -99,28 +186,28 @@ Screenshot[1]
 
 You should use the following import statement on top of your `.js` file:
 ```tsx
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 ```
 
-In your `App.tsx` file, add the following code to initialize the Trackier SDK:
+In your `App.tsx` file, add the following code to initialize the AppTrove SDK:
 ```tsx
 
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxc-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587f4xxxxac0cb370", "9e043b7e-xxxx-xxxx-xxxx-8cf6bfe8daa0");
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxc-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587f4xxxxac0cb370", "9e043b7e-xxxx-xxxx-xxxx-8cf6bfe8daa0");
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 }
@@ -128,24 +215,19 @@ export default function App() {
 
 Depending on whether you build your app for testing or for production, you must set the environment with one of these values:
 ```tsx
-TrackierConfig.EnvironmentTesting
-TrackierConfig.EnvironmentDevelopment
-TrackierConfig.EnvironmentProduction
+AppTroveConfig.EnvironmentTesting
+AppTroveConfig.EnvironmentDevelopment
+AppTroveConfig.EnvironmentProduction
 ```
 
-Check below the screenshot of above code 
-
-Screenshot[2]
-
-<img width="1000" alt="Screenshot 1" src="https://github.com/user-attachments/assets/bca7a2a3-7d89-41bc-9d61-3118a8652c0c">
 
 
 ### <a id="qs-track-events"></a>Events Tracking
 
-<a id="qs-retrieve-event-id"></a>Trackier events trackings enable to provides the insights into how to user interacts with your app. 
-Trackier SDK easily get that insights data from the app. Just follow with the simple events integration process
+<a id="qs-retrieve-event-id"></a>AppTrove events trackings enable to provides the insights into how to user interacts with your app. 
+AppTrove SDK easily get that insights data from the app. Just follow with the simple events integration process
 
-Trackier provides the `Built-in events` and `Customs events` on the Trackier panel.
+AppTrove provides the `Built-in events` and `Customs events` on the AppTrove panel.
 
 #### **Built-in Events** - 
 
@@ -153,7 +235,7 @@ Predefined events are the list of constants events which already been created on
 
 You can use directly to track those events. Just need to implements events in the app projects.
 
-Screenshot[3]
+Screenshot[2]
 <img width="1000" alt="Screenshot 4" src="https://github.com/user-attachments/assets/e6894530-9de3-41cc-8268-811ff0fbc551">
 
 
@@ -164,56 +246,52 @@ Screenshot[3]
 
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 
   function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
-    trackierEvent.param1 = "XXXXXX";
-    trackierEvent.param2 = "kkkkkk";
-    trackierEvent.couponCode = "testReact";
-    trackierEvent.discount = 2.0;
-    TrackierSDK.setUserName('abc');
-    TrackierSDK.setUserPhone("813434721");
-    TrackierSDK.setUserId("67863872382");
+    var apptroveEvent = new AppTroveEvent(AppTroveEvent.ADD_TO_CART);
+    apptroveEvent.param1 = "XXXXXX";
+    apptroveEvent.param2 = "kkkkkk";
+    apptroveEvent.couponCode = "testReact";
+    apptroveEvent.discount = 2.0;
+    AppTroveSDK.setUserName('abc');
+    AppTroveSDK.setUserPhone("813434721");
+    AppTroveSDK.setUserId("67863872382");
     const customData = new Map();
     customData.set("name", "sanu");
     customData.set("phone", "8130300784");
     var jsonData = { "url": "+91-8130300721" ,  "name": "Embassies" };
-    trackierEvent.ev = jsonData;
-    TrackierSDK.trackEvent(trackierEvent);
+    apptroveEvent.ev = jsonData;
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 }
 ```
 
-Also check the example app screenshot of above example
 
-Screenshot[4]
-
-<img width="1000" alt="Screenshot 2" src="https://github.com/user-attachments/assets/473b2179-d4d8-4be4-9860-7c37384f471d">
 
 
 #### **Customs Events** - 
 
 Customs events are created by user as per their required business logic. 
 
-You can create the events in the Trackier dashboard and integrate those events in the app project.
+You can create the events in the AppTrove dashboard and integrate those events in the app project.
 
-Screenshot[5]
+Screenshot[3]
 
 <img width="1000" alt="Screenshot 4" src="https://user-images.githubusercontent.com/16884982/176417552-a8c80137-aa1d-480a-81a3-ea1e03172868.png">
 
@@ -225,91 +303,83 @@ Screenshot[5]
 
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 
   function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent("sEMWSCTXeu");//pass your event id here
-    trackierEvent.param1 = "XXXXXX";
-    trackierEvent.param2 = "kkkkkk";
-    trackierEvent.couponCode = "testReact";
-    trackierEvent.discount = 2.0;
-    TrackierSDK.setUserName('abc');
-    TrackierSDK.setUserPhone("813434721");
-    TrackierSDK.setUserId("67863872382");
+    var apptroveEvent = new AppTroveEvent("sEMWSCTXeu");//pass your event id here
+    apptroveEvent.param1 = "XXXXXX";
+    apptroveEvent.param2 = "kkkkkk";
+    apptroveEvent.couponCode = "testReact";
+    apptroveEvent.discount = 2.0;
+    AppTroveSDK.setUserName('abc');
+    AppTroveSDK.setUserPhone("813434721");
+    AppTroveSDK.setUserId("67863872382");
     const customData = new Map();
     customData.set("name", "sanu");
     customData.set("phone", "8130300784");
     var jsonData = { "url": "+91-8130300721" ,  "name": "Embassies" };
-    trackierEvent.ev = jsonData;
-    TrackierSDK.trackEvent(trackierEvent);
+    apptroveEvent.ev = jsonData;
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 }
 ```
    
-Check below the example screenshot of customs events:-
 
-Screenshot[6]
-
-<img width="1000" alt="Screenshot 4" src="https://github.com/user-attachments/assets/d310a451-4f37-46d4-94de-a8161eab834f">
 
 
 ### <a id="qs-track-event-with-currencey"></a>Revenue Event Tracking
 
-Trackier allow user to pass the revenue data which is generated from the app through Revenue events. It is mainly used to keeping record of generating revenue from the app and also you can pass currency as well.
+AppTrove allow user to pass the revenue data which is generated from the app through Revenue events. It is mainly used to keeping record of generating revenue from the app and also you can pass currency as well.
 
 ```tsx
     
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 
   function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent("sEMWSCTXeu");
+    var apptroveEvent = new AppTroveEvent("sEMWSCTXeu");
    //Passing the revenue events be like below example
 
     revenueEvent.revenue = 2.5; //Pass your generated revenue here.
     revenueEvent.currency = "USD"; //Pass your currency here.
-    TrackierSDK.trackEvent(trackierEvent);
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 }
 
 ```
 
-Check below the revenue events calling screenshots.
 
-Screenshot[7]
-
-<img width="1000" alt="Screenshot 6" src="https://github.com/user-attachments/assets/993154f0-96af-4949-86c9-ddcb23ea5d7a">
 
 
 ### <a id="qs-add-custom-parms-event"></a>Pass the custom params in events
@@ -318,98 +388,96 @@ Screenshot[7]
 
   import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0");
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 
   function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent("sEMWSCTXeu");
+    var apptroveEvent = new AppTroveEvent("sEMWSCTXeu");
     var jsonData = { "url": "+91-8130300721" ,  "name": "Embassies" };
-    trackierEvent.ev = jsonData;
-    TrackierSDK.trackEvent(trackierEvent);
+    apptroveEvent.ev = jsonData;
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 }
   }
 ```
 
 - First create a map.
-- Pass its reference to trackierEvent.ev param of event.
-- Pass event reference to trackEvent method of TrackierSDK.
+- Pass its reference to apptroveEvent.ev param of event.
+- Pass event reference to trackEvent method of AppTroveSDK.
 
 
 ### <a id="qs-passing-user-data"></a>Passing User Data to SDK
 
-Trackier allows to pass additional data like Userid, Email to SDK so that same can be correlated to the Trackier Data and logs.
+AppTrove allows to pass additional data like Userid, Email to SDK so that same can be correlated to the AppTrove Data and logs.
 
-Just need to pass the data of User Id, Email Id and other additional data to Trackier SDK function which is mentioned below:-
+Just need to pass the data of User Id, Email Id and other additional data to AppTrove SDK function which is mentioned below:-
 
 
 ```js
 
 function _userDetails(){
-    var trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
+    var apptroveEvent = new AppTroveEvent(AppTroveEvent.ADD_TO_CART);
     //Passing the data as mentioned below 
-    TrackierSDk.setUserId("XXXXXXXX"); //Pass the UserId values here
-    TrackierSDk.setUserEmail("abc@gmail.com"); //Pass the user email id in the argument.
-    TrackierSDK.setUserName("abc");
-    TrackierSDK.setUserPhone("813434721");
-    TrackierSDK.trackEvent(trackierEvent);
+    AppTroveSDK.setUserId("XXXXXXXX"); //Pass the UserId values here
+    AppTroveSDK.setUserEmail("abc@gmail.com"); //Pass the user email id in the argument.
+    AppTroveSDK.setUserName("abc");
+    AppTroveSDK.setUserPhone("813434721");
+    AppTroveSDK.trackEvent(apptroveEvent);
 }
 ```
 
 ### For Passing Additional Data
 
-Trackier allow for passing the additional user details like UserName, Mobile Number, UserAge, UserGender etc. . You need to first make a hashmap and pass it in setUserAdditionalDetail function. The example are in mentioned below
+AppTrove allow for passing the additional user details like UserName, Mobile Number, UserAge, UserGender etc. . You need to first make a hashmap and pass it in setUserAdditionalDetail function. The example are in mentioned below
 
 
 ```js
 
   function _userDetails(){
-    var trackierEvent = new TrackierEvent(TrackierEvent.ADD_TO_CART);
+    var apptroveEvent = new AppTroveEvent(AppTroveEvent.ADD_TO_CART);
     //Passing the data as mentioned below 
-    TrackierSDk.setUserId("XXXXXXXX"); //Pass the UserId values here
-    TrackierSDk.setUserEmail("abc@gmail.com"); //Pass the user email id in the argument.
-    TrackierSDK.setUserName("abc");
-    TrackierSDK.setUserPhone("813434721");
+    AppTroveSDK.setUserId("XXXXXXXX"); //Pass the UserId values here
+    AppTroveSDK.setUserEmail("abc@gmail.com"); //Pass the user email id in the argument.
+    AppTroveSDK.setUserName("abc");
+    AppTroveSDK.setUserPhone("813434721");
     var jsonData = {"phone": "+91-8137872378" , "name": "Embassies"};
-    TrackierSDK.setUserAdditionalDetails("data", jsonData)
-    TrackierSDK.trackEvent(trackierEvent);
+    AppTroveSDK.setUserAdditionalDetails(jsonData)
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 ```
 
 Below are the screenshots of the customs data passing 
 
-Screenshot[8]
 
-<img width="1000" alt="Screenshot 7" src="https://github.com/user-attachments/assets/71a3330d-21de-41ca-9a86-0ec1ca0800a6">
 
 ## <a id="qs-sdk-signing"></a>SDK Signing 
 
 Following below are the steps to retrieve the secretId and secretKey :-
 
-- Login your Trackier Panel and select your application.
-- In the Dashboard, click on the `SDK Integration` option on the left side of panel. 
+- Login your AppTrove Panel and select your application.
+- In the Dashboard, click on the `... -> Settings` option on the left side of panel. 
 - Under on the SDK Integration, click on the Advanced tab. 
 - Under the Advanced tab, you will get the secretId and secretKey.
 
 Please check on the below screenshot
 
-Screenshot[9]
+Screenshot[4]
 
-<img width="1000" alt="Screenshot 8" src="https://user-images.githubusercontent.com/16884982/185338826-bcf802d0-c493-4a67-adb3-a9b52bae289e.png">
+<img width="1000" alt="Screenshot 8" src="docs/images/sdk-signing-screenshot.png">
 
 
 Check below the example code for passing the secretId and secretKey to the SDK
@@ -418,20 +486,20 @@ Check below the example code for passing the secretId and secretKey to the SDK
 
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0"); //SDK Signing
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0"); //SDK Signing
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 }
@@ -459,14 +527,14 @@ export default function App() {
   ```
 * Use the `analytics` instance obtained above to set the following user property:
   ```js
-    var trackierId = await TrackierSDK.getTrackierId();
-    await analytics().setUserProperty('ct_objectId', trackierId); 
+    var apptroveId = await AppTroveSDK.getAppTroveId();
+    await analytics().setUserProperty('ct_objectId', apptroveId); 
   ``` 
 
 * Adding the above code to your app sets up a common identifier. 
 * Set the `app_remove` event as a conversion event in Firebase. 
-* Use the Firebase cloud function to send uninstall information to Trackier MMP. 
-* You can find the support article [here](https://help.trackier.com/support/solutions/articles/31000162841-android-uninstall-tracking).
+* Use the Firebase cloud function to send uninstall information to AppTrove MMP. 
+* You can find the support article [here](https://help.apptrove.com/support/solutions/articles/31000162841-android-uninstall-tracking).
 
 
 ### <a id="qs-deeplink"></a> Deep linking 
@@ -507,7 +575,7 @@ For example, you could set up an activity called FirstActivity to open like this
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data
-                android:host="trackier.u9ilnk.me"
+                android:host="apptrove.u9ilnk.me"
                 android:pathPrefix="/product"
                 android:scheme="https" />
         </intent-filter>
@@ -516,7 +584,7 @@ For example, you could set up an activity called FirstActivity to open like this
 ```
 
 ```
-https://trackier.u9ilnk.me/product?dlv=FirstProduct&quantity=10&pid=sms
+https://apptrove.u9ilnk.me/product?dlv=FirstProduct&quantity=10&pid=sms
 ```
 
 ### Normal Deep linking Setup for iOS
@@ -531,15 +599,15 @@ Follow the steps for configuring Universal Links
 2. On the left-hand menu, select Certificates, IDs & Profiles.
 3. Under Identifiers, select App IDs.
 4. Click the relevant app.
-5. Copy the prefix ID and app bundle ID and insert in app settings page in Trackier MMP.
+5. Copy the prefix ID and app bundle ID and insert in app settings page in AppTrove.
 
-Screenshot[10]
+Screenshot[5]
 
 <img width="1000" alt="Screenshot apple" src="https://user-images.githubusercontent.com/16884982/190552695-060b22bc-e269-4a53-b397-09b6162b2faf.png">
 
-**b. Adding the prefix ID and app bundle ID in the Trackier MMP.**
+**b. Adding the prefix ID and app bundle ID in the AppTrove MMP.**
 
-- Login your Trackier Panel
+- Login your AppTrove Panel
 - Select your application and click on Action button and login as
 - In the Dashboard, Click on the `UniLink` option on the left side of panel.
 - On the Unilink page, create template by click on Action button which is located on the right side header of the page.
@@ -548,34 +616,34 @@ Screenshot[10]
 
 Please check the screenshot for the reference
 
-Screenshot[11]
+Screenshot[6]
 
-<img width="1000" alt="Screenshot dashboard" src="https://user-images.githubusercontent.com/16884982/190556533-c05419b8-ea6c-4850-9ea3-11ce5545b764.png">
+<img width="1000" alt="Screenshot dashboard" src="docs/images/unilink-template-screenshot.png">
 
 **c. Configure mobile apps to register associated domains**
 
-Configuring mobile apps to register approved domains takes place inside Xcode. It requires the unilink subdomain that you can get from app setting page in Trackier MMP.
+Configuring mobile apps to register approved domains takes place inside Xcode. It requires the unilink subdomain that you can get from app setting page in AppTrove MMP.
 
 1. Follow this [iOS instructions](https://developer.apple.com/documentation/xcode/supporting-associated-domains)
-2. Get the unilink subdomain from app settings page in Trackier MMP.
+2. Get the unilink subdomain from app settings page in AppTrove MMP.
 3. In Xcode, click on your project. Click on the project target.
 4. Switch to Capabilities tab.
 5. Turn on Associated Domain.
-6. Add the unilink subdomain that you got from Trackier MMP.
+6. Add the unilink subdomain that you got from AppTrove MMP.
 7. The format is applinks:subdomain.unilink.me. Add **applinks:** before the domain as like `applinks:subdomain.unilink.me`
 
-Screenshot[12]
+Screenshot[7]
 
 <img width="1000" alt="Screenshotxcode" src="https://user-images.githubusercontent.com/16884982/190557503-a13cbf23-8485-491b-a9d7-dcd86e44c912.png">
 
-To associate a domain with your app, you need to have the associated domain file on your domain and the appropriate entitlement in your app. Once the unilink is created, Trackier hosts the apple-app-site-association file. When a user installs your app, the system attempts to download the associated domain file and verify the domains in your Associated Domains Entitlement.
+To associate a domain with your app, you need to have the associated domain file on your domain and the appropriate entitlement in your app. Once the unilink is created, AppTrove hosts the apple-app-site-association file. When a user installs your app, the system attempts to download the associated domain file and verify the domains in your Associated Domains Entitlement.
 
 
 ### Deferred Deep linking
 
-Deferred deep linking happened, when a user does not have your app installed on their device. When the user clicks a trackier URL, the URL will redirect them to the Play Store to download and install your app. When the user opens the app for the first time, the SDK will read the deep_link content.
+Deferred deep linking happened, when a user does not have your app installed on their device. When the user clicks a apptrove URL, the URL will redirect them to the Play Store to download and install your app. When the user opens the app for the first time, the SDK will read the deep_link content.
 
-The Trackier SDK opens the deferred deep link by default. just need to add some code in application class just after initilazation of Trackier SDk
+The AppTrove SDK opens the deferred deep link by default. just need to add some code in application class just after initilazation of AppTrove SDk
 
 Below are the example of the code :-
 
@@ -583,20 +651,20 @@ Below are the example of the code :-
 
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, NativeEventEmitter, NativeModules} from 'react-native';
-import { TrackierConfig, TrackierSDK, TrackierEvent } from 'trackier-expo-sdk';
+import { AppTroveConfig, AppTroveSDK, AppTroveEvent } from 'apptrove-expo-sdk';
 
 export default function App() {
 
   useEffect(() => {
 
-    const trackierConfig = new TrackierConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", TrackierConfig.EnvironmentDevelopment);
-    trackierConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0"); //SDK Signing
-    trackierConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
+    const apptroveConfig = new AppTroveConfig("ee9f21fb-xxxx-xxxx-xxxxx-e4093e6d220c", AppTroveConfig.EnvironmentDevelopment);
+    apptroveConfig.setAppSecret("640710587xxxxxxac0cb370", "9e043b7e-7f44-xxx-xxxxx-8cf6bfe8daa0"); //SDK Signing
+    apptroveConfig.setDeferredDeeplinkCallbackListener((uri: string) => {
         console.log("Deferred Deeplink Callback received");
         console.log("URL: " + uri);
     });
   
-    TrackierSDK.initialize(trackierConfig);
+    AppTroveSDK.initialize(apptroveConfig);
  
   }, []);
 }
@@ -609,34 +677,37 @@ For getting the campaign data, We have a function that return the campaign data.
 ```js
 
 function _onPress_trackSimpleEvent(){
-    var trackierEvent = new TrackierEvent(TrackierEvent.UPDATE);
+    var apptroveEvent = new AppTroveEvent(AppTroveEvent.UPDATE);
     //Campaign Data 
-    TrackierSDK.getAd().then(val => console.log('===getAD: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getCampaign().then(val => console.log('===getCampaign: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getCampaignID().then(val => console.log('===getCampaignID: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getAdSet().then(val => console.log('===getAdSet: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getAdSetID().then(val => console.log('===getAdSetID: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getChannel().then(val => console.log('===getChannel: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getP1().then(val => console.log('===getP1: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getP2().then(val => console.log('===getP2: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getP3().then(val => console.log('===getP3: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getP4().then(val => console.log('===getP4: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getP5().then(val => console.log('===getP5: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getClickId().then(val => console.log('===getClickId: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getDlv().then(val => console.log('===getDlv: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getPid().then(val => console.log('===getPid: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.getIsRetargeting().then(val => console.log('===getIsRetargeting: ', val)).catch(e => console.log('==error: ', e))
-    TrackierSDK.trackEvent(trackierEvent);
+    AppTroveSDK.getAd().then(val => console.log('===getAD: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getCampaign().then(val => console.log('===getCampaign: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getCampaignID().then(val => console.log('===getCampaignID: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getAdSet().then(val => console.log('===getAdSet: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getAdID().then(val => console.log('===getAdID: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getChannel().then(val => console.log('===getChannel: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getP1().then(val => console.log('===getP1: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getP2().then(val => console.log('===getP2: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getP3().then(val => console.log('===getP3: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getP4().then(val => console.log('===getP4: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getP5().then(val => console.log('===getP5: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getClickId().then(val => console.log('===getClickId: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getDlv().then(val => console.log('===getDlv: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getPid().then(val => console.log('===getPid: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.getIsRetargeting().then(val => console.log('===getIsRetargeting: ', val)).catch(e => console.log('==error: ', e))
+    AppTroveSDK.trackEvent(apptroveEvent);
   }
 
 ```
 
 ## <a id="qs-progaurd-settings"></a>Proguard Settings 
 
-If your app is using proguard then add these lines to the proguard config file 
+If your app is using ProGuard or R8, add these lines to your ProGuard configuration file (usually `proguard-rules.pro`):
 
-``` 
-  -keep class com.trackier.sdk.** { *; }
+```proguard
+  # Keep AppTrove SDK classes
+  -keep class com.apptrove.sdk.** { *; }
+  
+  # Keep Google Play Services classes for Advertising ID
   -keep class com.google.android.gms.common.ConnectionResult {
       int SUCCESS;
   }
@@ -647,6 +718,9 @@ If your app is using proguard then add these lines to the proguard config file
       java.lang.String getId();
       boolean isLimitAdTrackingEnabled();
   }
-  -keep public class com.android.installreferrer.** { *; }
   
+  # Keep Install Referrer classes
+  -keep public class com.android.installreferrer.** { *; }
 ```
+
+**Note:** These ProGuard rules are required to prevent obfuscation of the SDK classes, which would cause runtime errors.

@@ -14,8 +14,29 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'TrackierExpoSdkExample' do
-  config = use_native_modules!
+target 'AppTroveExpoSdkExample' do
+  config = {}
+  begin
+    config = use_native_modules! || {}
+  rescue => error
+    Pod::UI.warn("Autolinking failed: #{error}")
+    config = {}
+  end
+
+  config ||= {}
+  # In a Yarn workspace, React Native may be hoisted to root node_modules
+  # Try example/node_modules first, then fall back to root node_modules
+  if config[:reactNativePath].nil?
+    example_rn_path = File.join(__dir__, '../node_modules/react-native')
+    root_rn_path = File.join(__dir__, '../../node_modules/react-native')
+    if File.exist?(File.join(example_rn_path, 'package.json'))
+      config[:reactNativePath] = '../node_modules/react-native'
+    elsif File.exist?(File.join(root_rn_path, 'package.json'))
+      config[:reactNativePath] = '../../node_modules/react-native'
+    else
+      config[:reactNativePath] = '../node_modules/react-native'
+    end
+  end
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -23,7 +44,9 @@ target 'TrackierExpoSdkExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'TrackierExpoSdkExampleTests' do
+  pod 'apptrove-expo-sdk', :path => '../..'
+
+  target 'AppTroveExpoSdkExampleTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -36,5 +59,29 @@ target 'TrackierExpoSdkExample' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    swift_runtime = '$(DEVELOPER_DIR)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(PLATFORM_NAME)'
+
+    adjust_paths = lambda do |build_config|
+      build_config.build_settings['LIBRARY_SEARCH_PATHS'] ||= ['$(inherited)']
+      paths = Array(build_config.build_settings['LIBRARY_SEARCH_PATHS'])
+      paths.reject! { |p| p.include?('MetalToolchain') }
+      paths << swift_runtime unless paths.include?(swift_runtime)
+      build_config.build_settings['LIBRARY_SEARCH_PATHS'] = paths
+    end
+
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each { |config| adjust_paths.call(config) }
+    end
+
+    installer.aggregate_targets.each do |aggregate_target|
+      next unless aggregate_target.user_project
+
+      aggregate_target.user_project.native_targets.each do |target|
+        target.build_configurations.each { |config| adjust_paths.call(config) }
+      end
+
+      aggregate_target.user_project.save
+    end
   end
 end

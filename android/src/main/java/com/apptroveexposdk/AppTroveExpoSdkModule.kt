@@ -9,15 +9,15 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.trackier.sdk.AttributionParams
-import com.trackier.sdk.DeepLink
-import com.trackier.sdk.DeepLinkListener
-import com.trackier.sdk.TrackierSDKConfig
-import com.trackier.sdk.dynamic_link.AndroidParameters
-import com.trackier.sdk.dynamic_link.DesktopParameters
-import com.trackier.sdk.dynamic_link.DynamicLink
-import com.trackier.sdk.dynamic_link.IosParameters
-import com.trackier.sdk.dynamic_link.SocialMetaTagParameters
+import com.apptrove.sdk.AttributionParams
+import com.apptrove.sdk.DeepLink
+import com.apptrove.sdk.DeepLinkListener
+import com.apptrove.sdk.AppTroveSDKConfig
+import com.apptrove.sdk.dynamic_link.AndroidParameters
+import com.apptrove.sdk.dynamic_link.DesktopParameters
+import com.apptrove.sdk.dynamic_link.DynamicLink
+import com.apptrove.sdk.dynamic_link.IosParameters
+import com.apptrove.sdk.dynamic_link.SocialMetaTagParameters
 
 class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
@@ -31,20 +31,21 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun initializeSDK(initializeMap: ReadableMap) {
-    val sdkConfig =
-            TrackierSDKConfig(
-                    reactApplicationContext,
-                    initializeMap.getString("appToken") ?: "",
-                    initializeMap.getString("environment") ?: ""
-            )
-    sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("2.0.0")
-    sdkConfig.setAppSecret(
-            initializeMap.getString("secretId") ?: "",
-            initializeMap.getString("secretKey") ?: ""
-    )
-    sdkConfig.setManualMode(initializeMap.getBoolean("manualMode"))
-    sdkConfig.disableOrganicTracking(initializeMap.getBoolean("disableOrganicTrack"))
+    try {
+      val sdkConfig =
+              AppTroveSDKConfig(
+                      reactApplicationContext,
+                      initializeMap.getString("appToken") ?: "",
+                      initializeMap.getString("environment") ?: ""
+              )
+      sdkConfig.setSDKType("react_native_sdk")
+      sdkConfig.setSDKVersion("2.0.0")
+      sdkConfig.setAppSecret(
+              initializeMap.getString("secretId") ?: "",
+              initializeMap.getString("secretKey") ?: ""
+      )
+      sdkConfig.setManualMode(initializeMap.getBoolean("manualMode"))
+      sdkConfig.disableOrganicTracking(initializeMap.getBoolean("disableOrganicTrack"))
     if (initializeMap.hasKey("hasDeferredDeeplinkCallback")) {
       sdkConfig.setDeepLinkListener(
               object : DeepLinkListener {
@@ -57,10 +58,10 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
     if (initializeMap.hasKey("region")) {
       val regionStr = initializeMap.getString("region")
       if (regionStr != null) {
-        val selectedRegion =
+                val selectedRegion =
                 when (regionStr.uppercase()) {
-                  "IN" -> TrackierSDKConfig.Region.IN
-                  "GLOBAL" -> TrackierSDKConfig.Region.GLOBAL
+                  "IN" -> AppTroveSDKConfig.Region.IN
+                  "GLOBAL" -> AppTroveSDKConfig.Region.GLOBAL
                   else -> {
                     android.util.Log.w("AppTroveExpoSdk", "Unknown region: $regionStr")
                     null
@@ -91,7 +92,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
         sdkConfig.setAttributionParams(attributionParams)
       }
     } else {
-      android.util.Log.e("AppTroveExpoSdk", "attributionParams map is missing or null")
+      android.util.Log.d("AppTroveExpoSdk", "attributionParams map is missing or null")
     }
 
     if (initializeMap.hasKey("facebookAppId")) {
@@ -118,7 +119,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
     if (initializeMap.hasKey("encryptionType")) {
       val encryptionTypeStr = initializeMap.getString("encryptionType")
       if (encryptionTypeStr != null) {
-        sdkConfig.setEncryptionType(TrackierSDKConfig.EncryptionType.AES_GCM)
+        sdkConfig.setEncryptionType(AppTroveSDKConfig.EncryptionType.AES_GCM)
       }
     }
 
@@ -129,149 +130,155 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
       }
     }
 
-    com.trackier.sdk.TrackierSDK.initialize(sdkConfig)
+      com.apptrove.sdk.AppTroveSDK.initialize(sdkConfig)
+      android.util.Log.d("AppTroveExpoSdk", "AppTrove SDK initialized successfully")
+    } catch (e: Exception) {
+      android.util.Log.e("AppTroveExpoSdk", "Error initializing AppTrove SDK: ${e.message}", e)
+      e.printStackTrace()
+      throw e
+    }
   }
 
   @ReactMethod
   fun setEnabled(value: Boolean) {
-    com.trackier.sdk.TrackierSDK.setEnabled(value)
+    com.apptrove.sdk.AppTroveSDK.setEnabled(value)
   }
 
   @ReactMethod
   fun getAppTroveId(promise: Promise) {
-    val id = com.trackier.sdk.TrackierSDK.getTrackierId()
+    val id = com.apptrove.sdk.AppTroveSDK.getAppTroveId()
     promise.resolve(id)
   }
 
   @ReactMethod
   fun setUserId(userId: String) {
-    com.trackier.sdk.TrackierSDK.setUserId(userId)
+    com.apptrove.sdk.AppTroveSDK.setUserId(userId)
   }
 
   @ReactMethod
   fun trackAsOrganic(value: Boolean) {
-    com.trackier.sdk.TrackierSDK.trackAsOrganic(value)
+    com.apptrove.sdk.AppTroveSDK.trackAsOrganic(value)
   }
 
   @ReactMethod
   fun setUserEmail(userEmail: String) {
-    com.trackier.sdk.TrackierSDK.setUserEmail(userEmail)
+    com.apptrove.sdk.AppTroveSDK.setUserEmail(userEmail)
   }
 
   @ReactMethod
   fun setUserName(userName: String) {
-    com.trackier.sdk.TrackierSDK.setUserName(userName)
+    com.apptrove.sdk.AppTroveSDK.setUserName(userName)
   }
 
   @ReactMethod
   fun setUserPhone(userPhone: String) {
-    com.trackier.sdk.TrackierSDK.setUserPhone(userPhone)
+    com.apptrove.sdk.AppTroveSDK.setUserPhone(userPhone)
   }
 
   @ReactMethod
   fun parseDeepLink(uri: String) {
     val data = Uri.parse(uri)
-    com.trackier.sdk.TrackierSDK.parseDeepLink(data)
+    com.apptrove.sdk.AppTroveSDK.parseDeepLink(data)
   }
 
   @ReactMethod
   fun getAd(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getAd())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getAd())
   }
 
   @ReactMethod
   fun getAdID(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getAdID())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getAdID())
   }
 
   @ReactMethod
   fun getAdSet(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getAdSet())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getAdSet())
   }
 
   @ReactMethod
   fun getCampaign(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getCampaign())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getCampaign())
   }
 
   @ReactMethod
   fun getCampaignID(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getCampaignID())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getCampaignID())
   }
 
   @ReactMethod
   fun getChannel(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getChannel())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getChannel())
   }
 
   @ReactMethod
   fun getP1(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getP1())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getP1())
   }
 
   @ReactMethod
   fun getP2(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getP2())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getP2())
   }
 
   @ReactMethod
   fun getP3(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getP3())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getP3())
   }
 
   @ReactMethod
   fun getP4(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getP4())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getP4())
   }
 
   @ReactMethod
   fun getP5(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getP5())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getP5())
   }
 
   @ReactMethod
   fun getClickId(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getClickId())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getClickId())
   }
 
   @ReactMethod
   fun getDlv(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getDlv())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getDlv())
   }
 
   @ReactMethod
   fun getPid(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getPid())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getPid())
   }
 
   @ReactMethod
   fun getIsRetargeting(promise: Promise) {
-    promise.resolve(com.trackier.sdk.TrackierSDK.getIsRetargeting())
+    promise.resolve(com.apptrove.sdk.AppTroveSDK.getIsRetargeting())
   }
 
   @ReactMethod
   fun setPreinstallAttribution(pid: String, campaign: String, campaignId: String) {
-    com.trackier.sdk.TrackierSDK.setPreinstallAttribution(pid, campaign, campaignId)
+    com.apptrove.sdk.AppTroveSDK.setPreinstallAttribution(pid, campaign, campaignId)
   }
 
   @ReactMethod
   fun setLocalRefTrack(value: Boolean, delimiter: String) {
-    com.trackier.sdk.TrackierSDK.setLocalRefTrack(value, delimiter)
+    com.apptrove.sdk.AppTroveSDK.setLocalRefTrack(value, delimiter)
   }
 
   @ReactMethod
   fun fireInstall() {
-    com.trackier.sdk.TrackierSDK.fireInstall()
+    com.apptrove.sdk.AppTroveSDK.fireInstall()
   }
 
   @ReactMethod
   fun setIMEI(imei1: String, imei2: String) {
-    com.trackier.sdk.TrackierSDK.setIMEI(imei1, imei2)
+    com.apptrove.sdk.AppTroveSDK.setIMEI(imei1, imei2)
   }
 
   @ReactMethod
   fun setMacAddress(macAddress: String) {
-    com.trackier.sdk.TrackierSDK.setMacAddress(macAddress)
+    com.apptrove.sdk.AppTroveSDK.setMacAddress(macAddress)
   }
 
   @ReactMethod
@@ -291,7 +298,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
           }
 
           android.util.Log.d("apptrovesdk", "Passing to SDK: ${ev.toString()}")
-          com.trackier.sdk.TrackierSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
+          com.apptrove.sdk.AppTroveSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
         }
       }
     }
@@ -299,7 +306,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun trackEvent(eventMap: ReadableMap) {
-    val appTroveEvent = com.trackier.sdk.TrackierEvent(eventMap.getString("eventId") ?: "")
+    val appTroveEvent = com.apptrove.sdk.AppTroveEvent(eventMap.getString("eventId") ?: "")
 
     appTroveEvent.orderId = eventMap.getString("orderId")
     appTroveEvent.currency = eventMap.getString("currency")
@@ -326,7 +333,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
       }
     }
     appTroveEvent.ev = ev
-    com.trackier.sdk.TrackierSDK.trackEvent(appTroveEvent)
+    com.apptrove.sdk.AppTroveSDK.trackEvent(appTroveEvent)
   }
 
   private fun checkKey(map: ReadableMap, key: String): Boolean {
@@ -434,7 +441,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
       }
 
       val dynamicLink = builder.build()
-      com.trackier.sdk.TrackierSDK.createDynamicLink(
+      com.apptrove.sdk.AppTroveSDK.createDynamicLink(
               dynamicLink,
               { dynamicLinkUrl ->
                 promise.resolve(dynamicLinkUrl)
@@ -452,7 +459,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun resolveDeeplinkUrl(url: String, promise: Promise) {
-    com.trackier.sdk.TrackierSDK.resolveDeeplinkUrl(
+    com.apptrove.sdk.AppTroveSDK.resolveDeeplinkUrl(
             url,
             { resultUrl ->
               try {

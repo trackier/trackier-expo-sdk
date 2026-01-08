@@ -28,9 +28,7 @@ function getEventEmitter(): NativeEventEmitter | null {
       if (Platform.OS === 'android') {
         module_apptrove_emitter = new NativeEventEmitter();
       } else if (Platform.OS === 'ios' && NativeModules.AppTroveExpoSdk) {
-        module_apptrove_emitter = new NativeEventEmitter(
-          NativeModules.AppTroveExpoSdk
-        );
+        module_apptrove_emitter = new NativeEventEmitter(NativeModules.AppTroveExpoSdk);
       }
     } catch (e) {
       // Silently fail if NativeEventEmitter can't be created
@@ -58,14 +56,14 @@ class AppTroveConfig {
   encryptionKey: string = ''; // Default Encryption Key
   encryptionType: string = 'AES_GCM'; // Default Encryption Type
 
-  static EnvironmentDevelopment: string = 'development';
-  static EnvironmentProduction: string = 'production';
-  static EnvironmentTesting: string = 'testing';
-  static IN: string = 'in';
-  static GLOBAL: string = 'global';
+  static EnvironmentDevelopment: string = "development";
+  static EnvironmentProduction: string = "production";
+  static EnvironmentTesting: string = "testing";
+  static IN: string = "in";
+  static GLOBAL: string = "global";
 
   static EncryptionType = {
-    AES_GCM: 'AES_GCM',
+    AES_GCM: "AES_GCM"
   };
 
   constructor(appToken: string, environment: string) {
@@ -86,17 +84,12 @@ class AppTroveConfig {
     this.disableOrganicTrack = value;
   }
 
-  setDeferredDeeplinkCallbackListener(
-    deferredDeeplinkCallbackListener: (url: string) => void
-  ): void {
-    if (Platform.OS === 'android' || Platform.OS === 'ios') {
+  setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (url: string) => void): void {
+    if (Platform.OS === "android" || Platform.OS === "ios") {
       const emitter = getEventEmitter();
       if (emitter !== null) {
         this.hasDeferredDeeplinkCallback = true;
-        emitter.addListener(
-          'apptrove_deferredDeeplink',
-          deferredDeeplinkCallbackListener
-        );
+        emitter.addListener('apptrove_deferredDeeplink', deferredDeeplinkCallbackListener);
       }
     }
   }
@@ -313,22 +306,7 @@ let AppTroveSDK: AppTroveSDKProps = {
 
   trackEvent: function (apptroveEvent: AppTroveEvent) {
     let isValidArgs = true;
-    const props = [
-      'eventId',
-      'orderId',
-      'currency',
-      'couponCode',
-      'param1',
-      'param2',
-      'param3',
-      'param4',
-      'param5',
-      'param6',
-      'param7',
-      'param8',
-      'param9',
-      'param10',
-    ];
+    const props = ['eventId', 'orderId', 'currency', 'couponCode', 'param1', 'param2', 'param3', 'param4', 'param5', 'param6', 'param7', 'param8', 'param9', 'param10'];
 
     props.forEach((v) => {
       const value = (apptroveEvent as any)[v];
@@ -341,28 +319,20 @@ let AppTroveSDK: AppTroveSDKProps = {
       }
     });
 
-    if (
-      !isValidArgs ||
-      (typeof apptroveEvent.revenue !== 'undefined' &&
-        typeof apptroveEvent.revenue !== 'number')
-    ) {
+    if (!isValidArgs || (typeof apptroveEvent.revenue !== 'undefined' && typeof apptroveEvent.revenue !== 'number')) {
       return;
     }
 
     module_apptrove.trackEvent(apptroveEvent);
   },
 
-  createDynamicLink: async function (
-    config: Record<string, any>
-  ): Promise<string> {
+  createDynamicLink: async function (config: Record<string, any>): Promise<string> {
     return await module_apptrove.createDynamicLink(config);
   },
 
-  resolveDeeplinkUrl: async function (
-    url: string
-  ): Promise<Record<string, any>> {
+  resolveDeeplinkUrl: async function (url: string): Promise<Record<string, any>> {
     return await module_apptrove.resolveDeeplinkUrl(url);
-  },
+  }
 };
 
 class AppTroveEvent {
@@ -384,21 +354,22 @@ class AppTroveEvent {
   revenue: number = 0;
   ev: Record<string, any> = {};
 
-  static LEVEL_ACHIEVED: string = '1CFfUn3xEY';
-  static ADD_TO_CART: string = 'Fy4uC1_FlN';
-  static ADD_TO_WISHLIST: string = 'AOisVC76YG';
-  static COMPLETE_REGISTRATION: string = 'mEqP4aD8dU';
-  static TUTORIAL_COMPLETION: string = '99VEGvXjN7';
-  static PURCHASE: string = 'Q4YsqBKnzZ';
-  static SUBSCRIBE: string = 'B4N_In4cIP';
-  static START_TRIAL: string = 'jYHcuyxWUW';
-  static ACHIEVEMENT_UNLOCKED: string = 'xTPvxWuNqm';
-  static CONTENT_VIEW: string = 'Jwzois1ays';
-  static TRAVEL_BOOKING: string = 'yP1-ipVtHV';
-  static SHARE: string = 'dxZXGG1qqL';
-  static INVITE: string = '7lnE3OclNT';
-  static LOGIN: string = 'o91gt1Q0PK';
-  static UPDATE: string = 'sEQWVHGThl';
+
+  static LEVEL_ACHIEVED: string = "1CFfUn3xEY";
+  static ADD_TO_CART: string = "Fy4uC1_FlN";
+  static ADD_TO_WISHLIST: string = "AOisVC76YG";
+  static COMPLETE_REGISTRATION: string = "mEqP4aD8dU";
+  static TUTORIAL_COMPLETION: string = "99VEGvXjN7";
+  static PURCHASE: string = "Q4YsqBKnzZ";
+  static SUBSCRIBE: string = "B4N_In4cIP";
+  static START_TRIAL: string = "jYHcuyxWUW";
+  static ACHIEVEMENT_UNLOCKED: string = "xTPvxWuNqm";
+  static CONTENT_VIEW: string = "Jwzois1ays";
+  static TRAVEL_BOOKING: string = "yP1-ipVtHV";
+  static SHARE: string = "dxZXGG1qqL";
+  static INVITE: string = "7lnE3OclNT";
+  static LOGIN: string = "o91gt1Q0PK";
+  static UPDATE: string = "sEQWVHGThl";
 
   constructor(eventId: string) {
     this.eventId = eventId;
@@ -410,12 +381,16 @@ class AppTroveEvent {
     }
     this.ev[key] = value;
   }
+
 }
 
 // AppTroveSDK.initialize = function(config: AppTroveConfig): void {
 //   module_apptrove.initializeSDK(config);
 // };
 
+export { AppTroveConfig, AppTroveSDK, AppTroveEvent };
+
+// Also export for CommonJS compatibility
 module.exports = {
   AppTroveConfig,
   AppTroveSDK,

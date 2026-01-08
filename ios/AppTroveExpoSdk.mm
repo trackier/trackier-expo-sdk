@@ -21,12 +21,26 @@ RCT_EXPORT_MODULE(AppTroveExpoSdk);
 }
 
 RCT_EXPORT_METHOD(initializeSDK:(NSDictionary *)config) {
-  [AppTroveSDKBridge initializeSDKWithConfig:config];
-  
-  // Set up deep link listener if needed
+  // Set up notification observer for deep link events before initializing
   if (config[@"hasDeferredDeeplinkCallback"] && [config[@"hasDeferredDeeplinkCallback"] boolValue]) {
-    // Deep link listener will be handled in Swift bridge if needed
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleDeepLinkNotification:)
+                                                 name:@"AppTroveDeepLinkReceived"
+                                               object:nil];
   }
+  
+  [AppTroveSDKBridge initializeSDKWithConfig:config];
+}
+
+- (void)handleDeepLinkNotification:(NSNotification *)notification {
+  NSString *url = notification.userInfo[@"url"];
+  if (url) {
+    [self sendEventWithName:@"apptrove_deferredDeeplink" body:url];
+  }
+}
+
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 RCT_EXPORT_METHOD(setEnabled:(BOOL)value) {
@@ -34,8 +48,8 @@ RCT_EXPORT_METHOD(setEnabled:(BOOL)value) {
 }
 
 RCT_EXPORT_METHOD(getAppTroveId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-  NSString *trackierId = [AppTroveSDKBridge getAppTroveId];
-  resolve(trackierId ?: @"");
+  NSString *appTroveId = [AppTroveSDKBridge getAppTroveId];
+  resolve(appTroveId ?: @"");
 }
 
 RCT_EXPORT_METHOD(setUserId:(NSString *)userId) {
@@ -178,13 +192,21 @@ RCT_EXPORT_METHOD(trackEvent:(NSDictionary *)eventMap) {
 }
 
 RCT_EXPORT_METHOD(createDynamicLink:(NSDictionary *)config resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-  // Dynamic link creation will be implemented in Swift bridge if needed
-  reject(@"NOT_IMPLEMENTED", @"Dynamic link creation not yet implemented in iOS bridge", nil);
+  NSMutableDictionary *mutableConfig = [config mutableCopy];
+  
+  [AppTroveSDKBridge createDynamicLinkWithConfig:mutableConfig onSuccess:^(NSString *dynamicLinkUrl) {
+    resolve(dynamicLinkUrl);
+  } onFailure:^(NSString *error) {
+    reject(@"CREATE_DYNAMIC_LINK_FAILED", error, nil);
+  }];
 }
 
 RCT_EXPORT_METHOD(resolveDeeplinkUrl:(NSString *)url resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-  // Resolve deeplink will be implemented in Swift bridge if needed
-  reject(@"NOT_IMPLEMENTED", @"Resolve deeplink not yet implemented in iOS bridge", nil);
+  [AppTroveSDKBridge resolveDeeplinkUrlWithUrl:url onSuccess:^(NSDictionary *result) {
+    resolve(result);
+  } onFailure:^(NSString *error) {
+    reject(@"RESOLVE_DEEPLINK_FAILED", error, nil);
+  }];
 }
 
 + (BOOL)requiresMainQueueSetup {

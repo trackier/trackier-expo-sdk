@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
   s.requires_arc = true
-  s.dependency "trackier-ios-sdk"
+  s.dependency "apptrove-ios-sdk"
   
   # Enable Swift module support
   s.pod_target_xcconfig = {

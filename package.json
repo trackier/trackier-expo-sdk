@@ -1,7 +1,7 @@
 {
-  "name": "trackier-expo-sdk",
-  "version": "1.6.77",
-  "description": "this is trackier expo and react-nattive package",
+  "name": "apptrove-expo-sdk",
+  "version": "2.0.0",
+  "description": "this is apptrove expo and react-native package",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -24,6 +24,7 @@
     "ios",
     "cpp",
     "*.podspec",
+    "app.plugin.js",
     "!ios/build",
     "!android/build",
     "!android/gradle",
@@ -36,7 +37,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace trackier-expo-sdk-example",
+    "example": "yarn workspace apptrove-expo-sdk-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -51,18 +52,20 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trackier/trackier-expo-sdk.git"
+    "url": "git+https://github.com/ApptroveLabs/trackier-expo-sdk.git"
   },
-  "author": "Trackier Dev <sanu@trackier.com> (https://trackier.com)",
+  "author": "AppTrove Labs <sanu@trackier.com> (https://apptrove.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/trackier/trackier-expo-sdk/issues"
+    "url": "https://github.com/ApptroveLabs/trackier-expo-sdk/issues"
   },
-  "homepage": "https://github.com/trackier/trackier-expo-sdk#readme",
+  "homepage": "https://github.com/ApptroveLabs/trackier-expo-sdk#readme",
+  "app.plugin.js": "./app.plugin.js",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@expo/config-plugins": "^8.0.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native/eslint-config": "^0.73.1",

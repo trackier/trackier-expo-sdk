@@ -95,6 +95,6 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation 'com.trackier:android-sdk:1.6.76' // Add this AppTrove SDK dependency in the build.gradle
+  implementation 'com.apptrove:android-sdk:2.0.0' // Add this AppTrove SDK dependency in the build.gradle
   implementation 'com.android.installreferrer:installreferrer:2.2'
 }

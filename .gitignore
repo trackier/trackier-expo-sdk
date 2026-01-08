@@ -45,7 +45,7 @@ android.iml
 example/ios/Pods
 example/ios/Podfile.lock
 example/ios/.xcode.env.local
-example/ios/TrackierExpoSdkExample.xcworkspace/
+example/ios/AppTroveExpoSdkExample.xcworkspace/
 
 # Ruby
 example/vendor/
