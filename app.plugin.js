@@ -17,26 +17,26 @@ function withAppTroveAndroid(config) {
   });
 }
 
-function withAppTroveIOS(config) {
-  return withDangerousMod(config, [
-    'ios',
-    async (config) => {
-      const podfilePath = path.join(
-        config.modRequest.platformProjectRoot,
-        'Podfile'
-      );
+// function withAppTroveIOS(config) {
+//   return withDangerousMod(config, [
+//     'ios',
+//     async (config) => {
+//       const podfilePath = path.join(
+//         config.modRequest.platformProjectRoot,
+//         'Podfile'
+//       );
 
-      let podfile = fs.readFileSync(podfilePath, 'utf-8');
+//       let podfile = fs.readFileSync(podfilePath, 'utf-8');
 
-      if (!podfile.includes("pod 'apptrove-ios-sdk'")) {
-        podfile += `\npod 'apptrove-ios-sdk'\n`;
-        fs.writeFileSync(podfilePath, podfile);
-      }
+//       if (!podfile.includes("pod 'apptrove-ios-sdk'")) {
+//         podfile += `\npod 'apptrove-ios-sdk'\n`;
+//         fs.writeFileSync(podfilePath, podfile);
+//       }
 
-      return config;
-    },
-  ]);
-}
+//       return config;
+//     },
+//   ]);
+// }
 
 module.exports = function withAppTrove(config) {
   config = withAppTroveAndroid(config);
