@@ -22,12 +22,7 @@
 - (NSURL *)bundleURL
 {
 #if DEBUG
-  // Use localhost for iOS simulator (works better than 127.0.0.1)
-  // For physical devices, you may need to use your machine's IP address
-  NSString *bundlePath = @"http://localhost:8081/index.bundle?platform=ios&dev=true";
-  NSURL *bundleURL = [NSURL URLWithString:bundlePath];
-  NSLog(@"🔗 Bundle URL: %@", bundleURL);
-  return bundleURL;
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif

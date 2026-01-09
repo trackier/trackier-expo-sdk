@@ -31,21 +31,20 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun initializeSDK(initializeMap: ReadableMap) {
-    try {
-      val sdkConfig =
-              AppTroveSDKConfig(
-                      reactApplicationContext,
-                      initializeMap.getString("appToken") ?: "",
-                      initializeMap.getString("environment") ?: ""
-              )
-      sdkConfig.setSDKType("react_native_sdk")
-      sdkConfig.setSDKVersion("2.0.0")
-      sdkConfig.setAppSecret(
-              initializeMap.getString("secretId") ?: "",
-              initializeMap.getString("secretKey") ?: ""
-      )
-      sdkConfig.setManualMode(initializeMap.getBoolean("manualMode"))
-      sdkConfig.disableOrganicTracking(initializeMap.getBoolean("disableOrganicTrack"))
+    val sdkConfig =
+            AppTroveSDKConfig(
+                    reactApplicationContext,
+                    initializeMap.getString("appToken") ?: "",
+                    initializeMap.getString("environment") ?: ""
+            )
+    sdkConfig.setSDKType("react_native_sdk")
+    sdkConfig.setSDKVersion("2.0.0")
+    sdkConfig.setAppSecret(
+            initializeMap.getString("secretId") ?: "",
+            initializeMap.getString("secretKey") ?: ""
+    )
+    sdkConfig.setManualMode(initializeMap.getBoolean("manualMode"))
+    sdkConfig.disableOrganicTracking(initializeMap.getBoolean("disableOrganicTrack"))
     if (initializeMap.hasKey("hasDeferredDeeplinkCallback")) {
       sdkConfig.setDeepLinkListener(
               object : DeepLinkListener {
@@ -130,13 +129,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
       }
     }
 
-      com.apptrove.sdk.AppTroveSDK.initialize(sdkConfig)
-      android.util.Log.d("AppTroveExpoSdk", "AppTrove SDK initialized successfully")
-    } catch (e: Exception) {
-      android.util.Log.e("AppTroveExpoSdk", "Error initializing AppTrove SDK: ${e.message}", e)
-      e.printStackTrace()
-      throw e
-    }
+    com.apptrove.sdk.AppTroveSDK.initialize(sdkConfig)
   }
 
   @ReactMethod
@@ -285,21 +278,25 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
   fun setUserAdditionalDetails(userAdditionalDetailsMap: ReadableMap) {
     android.util.Log.d("apptrovesdk", "JS map received: $userAdditionalDetailsMap")
 
-    if (checkKey(userAdditionalDetailsMap, "userAdditionalMap")) {
-      val map = userAdditionalDetailsMap.getMap("userAdditionalMap")
+    // Check if the map has a nested "userAdditionalMap" key (for backward compatibility)
+    // or use the map directly if it's already the user details
+    val map = if (checkKey(userAdditionalDetailsMap, "userAdditionalMap")) {
+      userAdditionalDetailsMap.getMap("userAdditionalMap")
+    } else {
+      userAdditionalDetailsMap
+    }
 
-      if (map != null) {
-        val userAdditionalDetail = AppTroveUtil.toMap(map)
-        if (userAdditionalDetail != null) {
-          // Optional: clean/map to string values if needed
-          val ev = LinkedHashMap<String, Any>()
-          for ((key, value) in userAdditionalDetail) {
-            ev[key] = value?.toString() ?: ""
-          }
-
-          android.util.Log.d("apptrovesdk", "Passing to SDK: ${ev.toString()}")
-          com.apptrove.sdk.AppTroveSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
+    if (map != null) {
+      val userAdditionalDetail = AppTroveUtil.toMap(map)
+      if (userAdditionalDetail != null) {
+        // Optional: clean/map to string values if needed
+        val ev = LinkedHashMap<String, Any>()
+        for ((key, value) in userAdditionalDetail) {
+          ev[key] = value?.toString() ?: ""
         }
+
+        android.util.Log.d("apptrovesdk", "Passing to SDK: ${ev.toString()}")
+        com.apptrove.sdk.AppTroveSDK.setUserAdditionalDetails(ev) // this calls your Kotlin method
       }
     }
   }

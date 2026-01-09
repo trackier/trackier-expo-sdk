@@ -205,11 +205,8 @@ let AppTroveSDK: AppTroveSDKProps = {
   },
 
   setUserAdditionalDetails: function (userAdditionalMap: Record<string, any>) {
-    if (Platform.OS === 'android') {
-      module_apptrove.setUserAdditionalDetails({ userAdditionalMap });
-    } else if (Platform.OS === 'ios') {
-      module_apptrove.setUserAdditionalDetails(userAdditionalMap);
-    }
+    // Pass the map directly to both platforms - Android now handles both nested and direct formats
+    module_apptrove.setUserAdditionalDetails(userAdditionalMap);
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
