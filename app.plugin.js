@@ -40,6 +40,6 @@ function withAppTroveAndroid(config) {
 
 module.exports = function withAppTrove(config) {
   config = withAppTroveAndroid(config);
-  config = withAppTroveIOS(config);
+  // config = withAppTroveIOS(config);
   return config;
 };
