@@ -5,6 +5,9 @@
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
+  "expo": {
+    "plugin": "./app.plugin.js"
+  },
   "exports": {
     ".": {
       "import": {
@@ -23,6 +26,7 @@
     "android",
     "ios",
     "cpp",
+    "app.plugin.js",
     "*.podspec",
     "app.plugin.js",
     "!ios/build",
