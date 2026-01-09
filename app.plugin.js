@@ -4,7 +4,7 @@ const path = require('path');
 
 function withAppTroveAndroid(config) {
   return withAppBuildGradle(config, (config) => {
-    const dep = `implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"`;
+    const dep = `implementation "com.google.android.gms:play-services-ads-identifier:18.2.0"`;
 
     if (!config.modResults.contents.includes('play-services-ads-identifier')) {
       config.modResults.contents = config.modResults.contents.replace(
