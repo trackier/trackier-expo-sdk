@@ -24,12 +24,60 @@ const module_trackier = NativeModules.TrackierExpoSdk;
 let module_trackier_emitter: NativeEventEmitter | null = null;
 
 if (Platform.OS === 'android') {
-	module_trackier_emitter = new NativeEventEmitter();
+  module_trackier_emitter = new NativeEventEmitter();
 } else if (Platform.OS === 'ios') {
-	module_trackier_emitter = new NativeEventEmitter(NativeModules.TrackierExpoSdk);
+  module_trackier_emitter = new NativeEventEmitter(NativeModules.TrackierExpoSdk);
 }
 
- class TrackierConfig {
+class TrackierDeepLink {
+  url?: string;
+  isDeferred: boolean;
+  deepLinkValue?: string;
+  partnerId?: string;
+  siteId?: string;
+  subSiteId?: string;
+  campaign?: string;
+  campaignId?: string;
+  ad?: string;
+  adId?: string;
+  adSet?: string;
+  adSetId?: string;
+  channel?: string;
+  clickId?: string;
+  message?: string;
+  p1?: string;
+  p2?: string;
+  p3?: string;
+  p4?: string;
+  p5?: string;
+  sdkParams?: Record<string, any>;
+
+  constructor(map: Record<string, any>) {
+    this.url = map.url;
+    this.isDeferred = map.isDeferred || false;
+    this.deepLinkValue = map.deepLinkValue;
+    this.partnerId = map.partnerId || map.pid;
+    this.siteId = map.siteId || map.sid;
+    this.subSiteId = map.subSiteId || map.ssid;
+    this.campaign = map.campaign || map.camp;
+    this.campaignId = map.campaignId || map.campId;
+    this.ad = map.ad;
+    this.adId = map.adId;
+    this.adSet = map.adSet;
+    this.adSetId = map.adSetId;
+    this.channel = map.channel;
+    this.clickId = map.clickId;
+    this.message = map.message;
+    this.p1 = map.p1;
+    this.p2 = map.p2;
+    this.p3 = map.p3;
+    this.p4 = map.p4;
+    this.p5 = map.p5;
+    this.sdkParams = map.sdkParams;
+  }
+}
+
+class TrackierConfig {
   appToken: string;
   environment: string;
   secretId: string = '';
@@ -38,7 +86,7 @@ if (Platform.OS === 'android') {
   disableOrganicTrack: boolean = false;
   hasDeferredDeeplinkCallback?: boolean;
   attributionParams: Record<string, string> = {};
-  region: string = ''; 
+  region: string = '';
   facebookAppId: string = ''; // Default Facebook App ID
   androidId: string = ''; // Default Android ID
   appId: string = ''; // Default App ID
@@ -48,74 +96,77 @@ if (Platform.OS === 'android') {
   static EnvironmentDevelopment: string = "development";
   static EnvironmentProduction: string = "production";
   static EnvironmentTesting: string = "testing";
-  static IN: string = "in"; 
+  static IN: string = "in";
   static GLOBAL: string = "global";
-  
+
   static EncryptionType = {
     AES_GCM: "AES_GCM"
-  }; 
+  };
 
   constructor(appToken: string, environment: string) {
-	  this.appToken = appToken;
-	  this.environment = environment;
+    this.appToken = appToken;
+    this.environment = environment;
   }
 
   setAppSecret(key: string, value: string): void {
-	  this.secretId = key;
-	  this.secretKey = value;
+    this.secretId = key;
+    this.secretKey = value;
   }
 
   setManualMode(value: boolean): void {
-	  this.manualMode = value;
+    this.manualMode = value;
   }
 
   disableOrganicTracking(value: boolean): void {
-	  this.disableOrganicTrack = value;
+    this.disableOrganicTrack = value;
   }
 
-  setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (url: string) => void): void {
-	  if (Platform.OS === "android" || Platform.OS === "ios") {
-		if (module_trackier_emitter !== null) {
-		  this.hasDeferredDeeplinkCallback = true;
-		  module_trackier_emitter.addListener('trackier_deferredDeeplink', deferredDeeplinkCallbackListener);
-	  }
-	}
-  }
-
-  setAttributionParams(params: Record<string, string>): void { 
-        if (typeof params !== 'object' || params === null) {
-            console.error('Invalid parameters passed to setAttributionParams');
-            return;
-        }
-        this.attributionParams = params;
+  setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (deepLink: TrackierDeepLink) => void): void {
+    if (Platform.OS === "android" || Platform.OS === "ios") {
+      if (module_trackier_emitter !== null) {
+        this.hasDeferredDeeplinkCallback = true;
+        module_trackier_emitter.addListener('trackier_deferredDeeplink', (data: any) => {
+          const deepLink = new TrackierDeepLink(data);
+          deferredDeeplinkCallbackListener(deepLink);
+        });
+      }
     }
+  }
 
-  setRegion(value: string): void { 
+  setAttributionParams(params: Record<string, string>): void {
+    if (typeof params !== 'object' || params === null) {
+      console.error('Invalid parameters passed to setAttributionParams');
+      return;
+    }
+    this.attributionParams = params;
+  }
+
+  setRegion(value: string): void {
     this.region = value;
   }
 
-  setFacebookAppId(value: string): void { 
+  setFacebookAppId(value: string): void {
     this.facebookAppId = value;
   }
 
-  setAndroidId(value: string): void { 
+  setAndroidId(value: string): void {
     this.androidId = value;
   }
 
-  setAppId(value: string): void { 
+  setAppId(value: string): void {
     this.appId = value;
   }
 
-  setEncryptionKey(value: string): void { 
+  setEncryptionKey(value: string): void {
     this.encryptionKey = value;
   }
 
-  setEncryptionType(value: string): void { 
+  setEncryptionType(value: string): void {
     this.encryptionType = value;
   }
 }
 
- interface TrackierSDKProps {
+interface TrackierSDKProps {
   initialize(trackierConfig: TrackierConfig): void;
   setEnabled(value: boolean): void;
   getTrackierId(): Promise<string>;
@@ -154,54 +205,54 @@ if (Platform.OS === 'android') {
   resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
 }
 
- let TrackierSDK: TrackierSDKProps = {
+let TrackierSDK: TrackierSDKProps = {
   initialize: function (trackierConfig: TrackierConfig) {
-	  module_trackier.initializeSDK(trackierConfig);
+    module_trackier.initializeSDK(trackierConfig);
   },
 
   setEnabled: function (value: boolean) {
-	  module_trackier.setEnabled(value);
+    module_trackier.setEnabled(value);
   },
 
   getTrackierId: async function () {
-	  const id = await module_trackier.getTrackierId();
-	  return id;
+    const id = await module_trackier.getTrackierId();
+    return id;
   },
 
   setUserId: function (userId: string) {
-	  module_trackier.setUserId(userId);
+    module_trackier.setUserId(userId);
   },
 
   setUserEmail: function (userEmail: string) {
-	  module_trackier.setUserEmail(userEmail);
+    module_trackier.setUserEmail(userEmail);
   },
 
   setUserName: function (userName: string) {
-	  module_trackier.setUserName(userName);
+    module_trackier.setUserName(userName);
   },
 
   setUserPhone: function (userPhone: string) {
-	  module_trackier.setUserPhone(userPhone);
+    module_trackier.setUserPhone(userPhone);
   },
 
   trackAsOrganic: function (value: boolean) {
-	  module_trackier.trackAsOrganic(value);
+    module_trackier.trackAsOrganic(value);
   },
 
   setLocalRefTrack: function (value: string, delimiter: string) {
-	  module_trackier.setLocalRefTrack(value, delimiter);
+    module_trackier.setLocalRefTrack(value, delimiter);
   },
 
   setUserAdditionalDetails: function (userAdditionalMap: Record<string, any>) {
-	  if (Platform.OS === 'android') {
-		module_trackier.setUserAdditionalDetails({userAdditionalMap});
-	  } else if (Platform.OS === 'ios') {
-		module_trackier.setUserAdditionalDetails(userAdditionalMap);
-	  }
+    if (Platform.OS === 'android') {
+      module_trackier.setUserAdditionalDetails({ userAdditionalMap});
+    } else if (Platform.OS === 'ios') {
+      module_trackier.setUserAdditionalDetails(userAdditionalMap);
+    }
   },
 
   waitForATTUserAuthorization: function (timeoutInterval: number) {
-	  module_trackier.waitForATTUserAuthorization(timeoutInterval);
+    module_trackier.waitForATTUserAuthorization(timeoutInterval);
   },
 
   updateAppleAdsToken: function (token: string) {
@@ -217,101 +268,101 @@ if (Platform.OS === 'android') {
   },
 
   fireInstall: function () {
-	  module_trackier.fireInstall();
+    module_trackier.fireInstall();
   },
 
   parseDeepLink: function (value: string) {
-	  module_trackier.parseDeepLink(value);
+    module_trackier.parseDeepLink(value);
   },
 
   setIMEI: function (imei1: string, imei2: string) {
-	  module_trackier.setIMEI(imei1, imei2);
+    module_trackier.setIMEI(imei1, imei2);
   },
 
   setMacAddress: function (value: string) {
-	  module_trackier.setMacAddress(value);
+    module_trackier.setMacAddress(value);
   },
 
   getAd: function () {
-	  return module_trackier.getAd();
+    return module_trackier.getAd();
   },
 
   getAdID: function () {
-	  return module_trackier.getAdID();
+    return module_trackier.getAdID();
   },
 
   getAdSet: function () {
-	  return module_trackier.getAdSet();
+    return module_trackier.getAdSet();
   },
 
   getCampaign: function () {
-	  return module_trackier.getCampaign();
+    return module_trackier.getCampaign();
   },
 
   getCampaignID: function () {
-	  return module_trackier.getCampaignID();
+    return module_trackier.getCampaignID();
   },
 
   getChannel: function () {
-	  return module_trackier.getChannel();
+    return module_trackier.getChannel();
   },
 
   getP1: function () {
-	  return module_trackier.getP1();
+    return module_trackier.getP1();
   },
 
   getP2: function () {
-	  return module_trackier.getP2();
+    return module_trackier.getP2();
   },
 
   getP3: function () {
-	  return module_trackier.getP3();
+    return module_trackier.getP3();
   },
 
   getP4: function () {
-	  return module_trackier.getP4();
+    return module_trackier.getP4();
   },
 
   getP5: function () {
-	  return module_trackier.getP5();
+    return module_trackier.getP5();
   },
 
   getClickId: function () {
-	  return module_trackier.getClickId();
+    return module_trackier.getClickId();
   },
 
   getDlv: function () {
-	  return module_trackier.getDlv();
+    return module_trackier.getDlv();
   },
 
   getPid: function () {
-	  return module_trackier.getPid();
+    return module_trackier.getPid();
   },
 
   getIsRetargeting: function () {
-	  return module_trackier.getIsRetargeting();
+    return module_trackier.getIsRetargeting();
   },
 
   trackEvent: function (trackierEvent: TrackierEvent) {
-	let isValidArgs = true;
-	const props = ['eventId', 'orderId', 'currency', 'couponCode', 'param1', 'param2', 'param3', 'param4', 'param5', 'param6', 'param7', 'param8', 'param9', 'param10'];
+    let isValidArgs = true;
+    const props = ['eventId', 'orderId', 'currency', 'couponCode', 'param1', 'param2', 'param3', 'param4', 'param5', 'param6', 'param7', 'param8', 'param9', 'param10'];
 
-	props.forEach((v) => {
-		const value = (trackierEvent as any)[v];
-		if (value === null || value === undefined) {
-			return;
-		}
-		if (typeof value !== 'string') {
-			isValidArgs = false;
-			return;
-		}
-	});
+    props.forEach((v) => {
+      const value = (trackierEvent as any)[v];
+      if (value === null || value === undefined) {
+        return;
+      }
+      if (typeof value !== 'string') {
+        isValidArgs = false;
+        return;
+      }
+    });
 
-	if (!isValidArgs || (typeof trackierEvent.revenue !== 'undefined' && typeof trackierEvent.revenue !== 'number')) {
-		return;
-	}
+    if (!isValidArgs || (typeof trackierEvent.revenue !== 'undefined' && typeof trackierEvent.revenue !== 'number')) {
+      return;
+    }
 
-	module_trackier.trackEvent(trackierEvent);
+    module_trackier.trackEvent(trackierEvent);
   },
 
   createDynamicLink: async function (config: Record<string, any>): Promise<string> {
@@ -323,7 +374,7 @@ if (Platform.OS === 'android') {
   }
 };
 
- class TrackierEvent {
+class TrackierEvent {
   eventId: string;
   orderId: string | null = null;
   currency: string | null = null;
@@ -347,7 +398,7 @@ if (Platform.OS === 'android') {
   static ADD_TO_CART: string = "Fy4uC1_FlN";
   static ADD_TO_WISHLIST: string = "AOisVC76YG";
   static COMPLETE_REGISTRATION: string = "mEqP4aD8dU";
-  static TUTORIAL_COMPLETION : string= "99VEGvXjN7";
+  static TUTORIAL_COMPLETION : string = "99VEGvXjN7";
   static PURCHASE: string = "Q4YsqBKnzZ";
   static SUBSCRIBE: string = "B4N_In4cIP";
   static START_TRIAL: string = "jYHcuyxWUW";
@@ -360,14 +411,14 @@ if (Platform.OS === 'android') {
   static UPDATE: string = "sEQWVHGThl";
 
   constructor(eventId: string) {
-	  this.eventId = eventId;
+    this.eventId = eventId;
   }
 
   setEventValue(key: string, value: any): void {
-	  if (typeof key !== 'string') {
-		  return;
-	  }
-	  this.ev[key] = value;
+    if (typeof key !== 'string') {
+      return;
+    }
+    this.ev[key] = value;
   }
 
 }
@@ -377,7 +428,8 @@ if (Platform.OS === 'android') {
 // };
 
 module.exports = {
-	TrackierConfig,
-	TrackierSDK, 
-	TrackierEvent
+  TrackierConfig,
+  TrackierSDK,
+  TrackierEvent,
+  TrackierDeepLink
 }
