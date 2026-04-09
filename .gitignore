@@ -47,15 +47,17 @@ example/ios/Podfile.lock
 example/ios/.xcode.env.local
 example/ios/TrackierExpoSdkExample.xcworkspace/
 
-# Ruby
+# Example app (generated / local-only)
+example/node_modules/
+example/.bundle/
 example/vendor/
 example/Gemfile.lock
-
-# Android build artifacts
-example/android/node_modules
-
-# Ruby
-example/vendor/
+example/android/.gradle/
+example/android/build/
+example/android/app/.cxx/
+example/android/app/build/
+example/ios/build/
+example/ios/DerivedData/
 
 # node.js
 #
