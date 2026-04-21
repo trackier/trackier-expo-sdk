@@ -40,6 +40,54 @@ function getEventEmitter(): NativeEventEmitter | null {
   return module_apptrove_emitter;
 }
 
+class AppTroveDeepLink {
+  url?: string;
+  isDeferred: boolean;
+  deepLinkValue?: string;
+  partnerId?: string;
+  siteId?: string;
+  subSiteId?: string;
+  campaign?: string;
+  campaignId?: string;
+  ad?: string;
+  adId?: string;
+  adSet?: string;
+  adSetId?: string;
+  channel?: string;
+  clickId?: string;
+  message?: string;
+  p1?: string;
+  p2?: string;
+  p3?: string;
+  p4?: string;
+  p5?: string;
+  sdkParams?: Record<string, any>;
+
+  constructor(map: Record<string, any>) {
+    this.url = map.url;
+    this.isDeferred = map.isDeferred || false;
+    this.deepLinkValue = map.deepLinkValue;
+    this.partnerId = map.partnerId || map.pid;
+    this.siteId = map.siteId || map.sid;
+    this.subSiteId = map.subSiteId || map.ssid;
+    this.campaign = map.campaign || map.camp;
+    this.campaignId = map.campaignId || map.campId;
+    this.ad = map.ad;
+    this.adId = map.adId;
+    this.adSet = map.adSet;
+    this.adSetId = map.adSetId;
+    this.channel = map.channel;
+    this.clickId = map.clickId;
+    this.message = map.message;
+    this.p1 = map.p1;
+    this.p2 = map.p2;
+    this.p3 = map.p3;
+    this.p4 = map.p4;
+    this.p5 = map.p5;
+    this.sdkParams = map.sdkParams;
+  }
+}
+
 class AppTroveConfig {
   appToken: string;
   environment: string;
@@ -84,12 +132,15 @@ class AppTroveConfig {
     this.disableOrganicTrack = value;
   }
 
-  setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (url: string) => void): void {
+  setDeferredDeeplinkCallbackListener(deferredDeeplinkCallbackListener: (deepLink: AppTroveDeepLink) => void): void {
     if (Platform.OS === "android" || Platform.OS === "ios") {
       const emitter = getEventEmitter();
       if (emitter !== null) {
         this.hasDeferredDeeplinkCallback = true;
-        emitter.addListener('apptrove_deferredDeeplink', deferredDeeplinkCallbackListener);
+        emitter.addListener('apptrove_deferredDeeplink', (data: any) => {
+          const deepLink = new AppTroveDeepLink(data);
+          deferredDeeplinkCallbackListener(deepLink);
+        });
       }
     }
   }
@@ -381,15 +432,12 @@ class AppTroveEvent {
 
 }
 
-// AppTroveSDK.initialize = function(config: AppTroveConfig): void {
-//   module_apptrove.initializeSDK(config);
-// };
-
-export { AppTroveConfig, AppTroveSDK, AppTroveEvent };
+export { AppTroveConfig, AppTroveSDK, AppTroveEvent, AppTroveDeepLink };
 
 // Also export for CommonJS compatibility
 module.exports = {
   AppTroveConfig,
   AppTroveSDK,
-  AppTroveEvent
+  AppTroveEvent,
+  AppTroveDeepLink
 }

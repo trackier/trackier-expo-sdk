@@ -38,7 +38,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
                     initializeMap.getString("environment") ?: ""
             )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("2.0.0")
+    sdkConfig.setSDKVersion("2.0.1")
     sdkConfig.setAppSecret(
             initializeMap.getString("secretId") ?: "",
             initializeMap.getString("secretKey") ?: ""
@@ -49,7 +49,47 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
       sdkConfig.setDeepLinkListener(
               object : DeepLinkListener {
                 override fun onDeepLinking(deepLink: DeepLink) {
-                  sendEvent(reactApplicationContext, "apptrove_deferredDeeplink", deepLink.getUrl())
+                  val deepLinkData = Arguments.createMap()
+                  deepLinkData.putString("url", deepLink.getUrl())
+                  deepLinkData.putBoolean("isDeferred", deepLink.isDeferred())
+                  deepLinkData.putString("deepLinkValue", deepLink.getDeepLinkValue())
+                  deepLinkData.putString("partnerId", deepLink.getPartnerId())
+                  deepLinkData.putString("pid", deepLink.getPartnerId())
+                  deepLinkData.putString("siteId", deepLink.getSiteId())
+                  deepLinkData.putString("sid", deepLink.getSiteId())
+                  deepLinkData.putString("subSiteId", deepLink.getSubSiteId())
+                  deepLinkData.putString("ssid", deepLink.getSubSiteId())
+                  deepLinkData.putString("campaign", deepLink.getCampaign())
+                  deepLinkData.putString("camp", deepLink.getCampaign())
+                  deepLinkData.putString("campaignId", deepLink.getStringValue("campId"))
+                  deepLinkData.putString("campId", deepLink.getStringValue("campId"))
+                  deepLinkData.putString("ad", deepLink.getStringValue("ad"))
+                  deepLinkData.putString("adId", deepLink.getStringValue("adId"))
+                  deepLinkData.putString("adSet", deepLink.getStringValue("adSet"))
+                  deepLinkData.putString("adSetId", deepLink.getStringValue("adSetId"))
+                  deepLinkData.putString("channel", deepLink.getStringValue("channel"))
+                  deepLinkData.putString("clickId", deepLink.getStringValue("clickId"))
+                  deepLinkData.putString("message", deepLink.getStringValue("message"))
+                  deepLinkData.putString("p1", deepLink.getP1())
+                  deepLinkData.putString("p2", deepLink.getP2())
+                  deepLinkData.putString("p3", deepLink.getP3())
+                  deepLinkData.putString("p4", deepLink.getP4())
+                  deepLinkData.putString("p5", deepLink.getP5())
+
+                  val sdkParams = Arguments.createMap()
+                  deepLink.getSdkParams()?.let { params ->
+                    for ((key, value) in params) {
+                      sdkParams.putString(key, value.toString())
+                    }
+                  }
+                  deepLink.getData()?.let { data ->
+                    for ((key, value) in data) {
+                      sdkParams.putString(key, value.toString())
+                    }
+                  }
+                  deepLinkData.putMap("sdkParams", sdkParams)
+
+                  sendEvent(reactApplicationContext, "apptrove_deferredDeeplink", deepLinkData)
                 }
               }
       )
@@ -337,7 +377,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
     return map.hasKey(key) && !map.isNull(key)
   }
 
-  private fun sendEvent(reactContext: ReactApplicationContext, eventName: String, params: String?) {
+  private fun sendEvent(reactContext: ReactApplicationContext, eventName: String, params: Any?) {
     reactContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit(eventName, params)
