@@ -24,8 +24,60 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 		if (result.getUrl() == nil) {
 			print("Deeplink URL is nil")
 		} else {
-			sendEvent(withName: "apptrove_deferredDeeplink", body: result.getUrl())
+			let url = result.getUrl() ?? ""
+			var deepLinkData: [String: Any] = [:]
+			deepLinkData["url"] = url
+			deepLinkData["isDeferred"] = true
+			deepLinkData["deepLinkValue"] = result.getDlv()
+			deepLinkData["partnerId"] = result.getPid()
+			deepLinkData["pid"] = result.getPid()
+			deepLinkData["campaign"] = result.getCamp()
+			deepLinkData["camp"] = result.getCamp()
+			deepLinkData["campaignId"] = result.getCampId()
+			deepLinkData["campId"] = result.getCampId()
+			deepLinkData["ad"] = result.getAd()
+			deepLinkData["adId"] = result.getAdId()
+			deepLinkData["adSet"] = result.getAdSet()
+			deepLinkData["adSetId"] = result.getAdSetId()
+			deepLinkData["channel"] = result.getChannel()
+			deepLinkData["clickId"] = result.getClickId()
+			deepLinkData["message"] = result.getMessage()
+			deepLinkData["p1"] = result.getP1()
+			deepLinkData["p2"] = result.getP2()
+			deepLinkData["p3"] = result.getP3()
+			deepLinkData["p4"] = result.getP4()
+			deepLinkData["p5"] = result.getP5()
+
+			let queryParams = AppTroveExpoSdk.getQueryParams(uri: url)
+			deepLinkData["siteId"] = queryParams["sid"]
+			deepLinkData["sid"] = queryParams["sid"]
+			deepLinkData["subSiteId"] = queryParams["ssid"]
+			deepLinkData["ssid"] = queryParams["ssid"]
+
+			var sdkParams: [String: Any] = [:]
+			for (key, value) in queryParams {
+				sdkParams[key] = value
+			}
+			if let params = result.getSDKParamsDictionary() {
+				for (key, value) in params {
+					sdkParams[key] = "\(value)"
+				}
+			}
+			deepLinkData["sdkParams"] = sdkParams
+
+			sendEvent(withName: "apptrove_deferredDeeplink", body: deepLinkData)
 		}
+	}
+
+	private static func getQueryParams(uri: String) -> [String: String] {
+		var map = [String: String]()
+		guard let url = URL(string: uri), let components = URLComponents(url: url, resolvingAgainstBaseURL: false), let queryItems = components.queryItems else {
+			return map
+		}
+		for item in queryItems {
+			map[item.name] = item.value
+		}
+		return map
 	}
 	
 	open override func supportedEvents() -> [String] {
@@ -40,7 +92,7 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 		let config = AppTroveSDKConfig(appToken: appToken , env: environment)
 		config.setSDKType(sdkType: "react_native_sdk")
 		config.setAppSecret(secretId: dict["secretId"] as! String, secretKey: dict["secretKey"] as! String)
-		config.setSDKVersion(sdkVersion: "2.0.0")
+		config.setSDKVersion(sdkVersion: "2.0.1")
 		if (deeplinking != nil) {
 			config.setDeeplinkListerner(listener: self)
 		}

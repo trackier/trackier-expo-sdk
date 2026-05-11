@@ -90,3 +90,6 @@ lib/
 # React Native Codegen
 ios/generated
 android/generated
+
+# Example App local changes
+example/src/App.tsx
