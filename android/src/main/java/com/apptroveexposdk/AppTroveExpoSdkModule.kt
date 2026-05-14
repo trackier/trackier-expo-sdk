@@ -38,7 +38,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
                     initializeMap.getString("environment") ?: ""
             )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("2.0.1")
+    sdkConfig.setSDKVersion("2.0.2")
     sdkConfig.setAppSecret(
             initializeMap.getString("secretId") ?: "",
             initializeMap.getString("secretKey") ?: ""
@@ -212,6 +212,11 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
   fun parseDeepLink(uri: String) {
     val data = Uri.parse(uri)
     com.apptrove.sdk.AppTroveSDK.parseDeepLink(data)
+  }
+
+  @ReactMethod
+  fun sendFcmToken(token: String) {
+    com.apptrove.sdk.AppTroveSDK.sendFcmToken(token)
   }
 
   @ReactMethod

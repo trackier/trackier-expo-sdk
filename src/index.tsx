@@ -215,6 +215,8 @@ interface AppTroveSDKProps {
   trackEvent(event: AppTroveEvent): void;
   createDynamicLink(config: Record<string, any>): Promise<string>;
   resolveDeeplinkUrl(url: string): Promise<Record<string, any>>;
+  sendFcmToken(token: string): void;
+  sendAPNToken(token: string): void;
 }
 
 let AppTroveSDK: AppTroveSDKProps = {
@@ -380,6 +382,14 @@ let AppTroveSDK: AppTroveSDKProps = {
 
   resolveDeeplinkUrl: async function (url: string): Promise<Record<string, any>> {
     return await module_apptrove.resolveDeeplinkUrl(url);
+  },
+
+  sendFcmToken: function (token: string) {
+    module_apptrove.sendFcmToken(token);
+  },
+
+  sendAPNToken: function (token: string) {
+    module_apptrove.sendAPNToken(token);
   }
 };
 
