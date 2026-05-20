@@ -24,6 +24,8 @@ RCT_EXTERN_METHOD(fireInstall)
 
 RCT_EXTERN_METHOD(parseDeepLink: (NSString *)url)
 
+RCT_EXTERN_METHOD(sendAPNToken: (NSString *)token)
+
 RCT_EXTERN_METHOD(setLocalRefTrack:(BOOL *)value withDelim: (NSString *)delimeter)
 
 RCT_EXTERN_METHOD(setUserAdditionalDetails:(NSDictionary *)userAdditionalMap)

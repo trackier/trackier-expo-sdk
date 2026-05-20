@@ -92,7 +92,7 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 		let config = AppTroveSDKConfig(appToken: appToken , env: environment)
 		config.setSDKType(sdkType: "react_native_sdk")
 		config.setAppSecret(secretId: dict["secretId"] as! String, secretKey: dict["secretKey"] as! String)
-		config.setSDKVersion(sdkVersion: "2.0.1")
+		config.setSDKVersion(sdkVersion: "2.0.2")
 		if (deeplinking != nil) {
 			config.setDeeplinkListerner(listener: self)
 		}
@@ -294,6 +294,10 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 
 	@objc func parseDeepLink(_ url: String) {
 		AppTroveSDK.parseDeepLink(uri: url)
+	}
+
+	@objc func sendAPNToken(_ token: String) {
+		AppTroveSDK.sendAPNToken(token: token)
 	}
 
 	@objc func createDynamicLink(_ config: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
