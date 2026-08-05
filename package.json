@@ -1,6 +1,6 @@
 {
   "name": "apptrove-expo-sdk",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "this is apptrove expo and react-native package",
   "source": "./src/index.tsx",
   "main": "./lib/commonjs/index.js",

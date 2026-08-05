@@ -92,7 +92,7 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 		let config = AppTroveSDKConfig(appToken: appToken , env: environment)
 		config.setSDKType(sdkType: "react_native_sdk")
 		config.setAppSecret(secretId: dict["secretId"] as! String, secretKey: dict["secretKey"] as! String)
-		config.setSDKVersion(sdkVersion: "2.0.2")
+		config.setSDKVersion(sdkVersion: "2.0.3")
 		if (deeplinking != nil) {
 			config.setDeeplinkListerner(listener: self)
 		}
@@ -185,7 +185,7 @@ class AppTroveExpoSdk: RCTEventEmitter, DeepLinkListener {
 	}
 
 	@objc func updatePostbackConversion(_ conversionValue: Int) {
-		AppTroveSDK.updatePostbackConversion(conversionValue: conversionValue)
+		AppTroveSDK.updatePostbackConversion(conversionValue)
 	}
 
 	@objc func subscribeDeeplink() {
