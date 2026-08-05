@@ -38,7 +38,7 @@ class AppTroveExpoSdkModule(reactContext: ReactApplicationContext) :
                     initializeMap.getString("environment") ?: ""
             )
     sdkConfig.setSDKType("react_native_sdk")
-    sdkConfig.setSDKVersion("2.0.2")
+    sdkConfig.setSDKVersion("2.0.3")
     sdkConfig.setAppSecret(
             initializeMap.getString("secretId") ?: "",
             initializeMap.getString("secretKey") ?: ""
